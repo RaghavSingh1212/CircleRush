@@ -11,7 +11,7 @@ export default function App() {
       try {
         // Reference the document in the "Circles" collection by its ID
         // console.log(db);
-        const docRef = doc(db, 'Circles', 'mdYW7syRmeLnYuR47nO7');
+        const docRef = doc(db, 'Circles', 'DKntG1PEtg8zETDDruBA');
         // console.log(docRef);
         // console.log(docRef);
         console.log("bruh");
