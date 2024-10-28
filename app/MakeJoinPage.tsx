@@ -13,7 +13,7 @@ export default function MakeJoinPage({ navigation }) {
 
       <Button
         title="Make a Circle"
-        onPress={() => Alert.alert('Navigate to make circle screen')}
+        onPress={() => navigation.navigate('Make_1')}
         style={{ marginTop: 10 }}
       />
 
