@@ -18,11 +18,7 @@ export default function App() {
         {/* MakeJoin Page */}
         <Stack.Screen name="MakeJoin" component={MakeJoinPage} options={{ title: 'Make or Join a Circle' }} />
         {/* Make_1 Page */}
-        <Stack.Screen name="Make_1" component={make_1} options={{ title: 'Name your Circle' }} />
-        {/* Make_2 Page */}
-        <Stack.Screen name="Make_2" component={make_2} options={{ title: 'Set a Time Frame' }} />
-        {/* Make_3 Page */}
-        <Stack.Screen name="Make_3" component={make_3} options={{ title: 'Set a Goal' }} />
+        <Stack.Screen name="Make_1" component={make_1} options={{ title: 'Make a Circle' }} />
       </Stack.Navigator>
     // </NavigationContainer>
   );
