@@ -9,31 +9,62 @@ export default function ViewCirclesPage() {
   const navigation = useNavigation();
 
   useEffect(() => {
+    // const fetchUserCircles = async () => {
+    //   const user = auth.currentUser;
+    //   if (!user) {
+    //     console.log("No authenticated user.");
+    //     return;
+    //   }
+      
+    //   console.log("Authenticated user:", user.displayName || user.email);
+  
+    //   const circlesRef = collection(db, 'Circles');
+    // //   const q = query(circlesRef, where('users', 'array-contains', { userName: user.displayName || user.email }));
+    // const q = query(circlesRef, where('circleName', '==', 'bruh1')); // <-- this query works
+
+  
+    //   try {
+    //     const querySnapshot = await getDocs(q);
+    //     console.log("Query Snapshot:", querySnapshot);
+  
+    //     if (querySnapshot.empty) {
+    //       console.warn("No circles found for this user.");
+    //     }
+  
+    //     const circlesData = querySnapshot.docs.map(doc => ({
+    //       id: doc.id,
+    //       ...doc.data(),
+    //     }));
+  
+    //     console.log("Circles Data:", circlesData);
+  
+    //     setCircles(circlesData);
+    //   } catch (error) {
+    //     console.error("Error fetching circles:", error);
+    //   }
+    // };
+
     const fetchUserCircles = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const circlesRef = collection(db, 'Circles');
-      console.log(circlesRef);
-      const q = query(circlesRef, where('users', 'array-contains', { userName: user.displayName || user.email }));
-      console.log("query:");
-      console.log(q);
-      const querySnapshot = await getDocs(q);
-
-      const circlesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      console.log("Circles Data for ");
-      console.log(user);
-      console.log(circlesData);
-
-      setCircles(circlesData);
-    };
-
+        const user = auth.currentUser;
+        if (!user) return;
+      
+        const circlesRef = collection(db, 'Circles');
+        const q = query(circlesRef); // Fetch all circles
+      
+        const querySnapshot = await getDocs(q);
+        const circlesData = querySnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(circle => 
+            circle.users.some(u => u.userName === (user.displayName || user.email))
+          );
+      
+        setCircles(circlesData);
+      };
+      
+  
     fetchUserCircles();
   }, []);
+  
 
   const renderCircle = ({ item }) => (
     <TouchableOpacity
