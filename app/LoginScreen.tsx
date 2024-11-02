@@ -14,7 +14,7 @@ export default function LoginScreen() {
       await signInWithEmailAndPassword(auth, email, password);
       Alert.alert('Login Successful!');
       // Navigate to the MakeJoin page
-      navigation.navigate('MakeJoin');
+      navigation.navigate('MakeJoinViewPage');
     } catch (error) {
       Alert.alert('Login Failed', error.message);
     }
@@ -26,7 +26,7 @@ export default function LoginScreen() {
       await signInWithPopup(auth, provider);
       Alert.alert('Login Successful with Google!');
       // Navigate to the MakeJoin page
-      navigation.navigate('MakeJoin');
+      navigation.navigate('MakeJoinViewPage');
     } catch (error) {
       Alert.alert('Google Sign-In Failed', error.message);
     }

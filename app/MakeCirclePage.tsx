@@ -1,35 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { db, auth } from '@/firebase'; // Import Firestore and Auth
-import { collection, addDoc } from 'firebase/firestore';
+import { View, TextInput, Button, Alert } from 'react-native';
+import { db, auth } from '@/firebase';
+import { query, collection, where, getDocs, addDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
-export default function make_1({ navigation }) {
+export default function MakeCirclePage({ navigation }) {
   const [circleName, setCircleName] = useState('');
   const [winnerPrize, setWinnerPrize] = useState('');
   const [loserChallenge, setLoserChallenge] = useState('');
   const [duration, setDuration] = useState('');
 
   const handleCreateCircle = async () => {
+    if (!circleName || !winnerPrize || !loserChallenge || !duration) {
+      Alert.alert('All fields are required!');
+      return;
+    }
+  
     try {
-      const user = auth.currentUser; // Current user info
+      const user = auth.currentUser;
+  
+      // Query Firestore to check if a Circle with the same name already exists for the user
+      const circlesRef = collection(db, 'Circles');
+      const q = query(circlesRef, where('circleName', '==', circleName), where('users', 'array-contains', { userName: user.displayName || user.email, adminStatus: true }));
+      const querySnapshot = await getDocs(q);
+  
+      if (!querySnapshot.empty) {
+        Alert.alert('A Circle with this name already exists!');
+        return;
+      }
+  
+      // If no duplicate found, proceed to create the Circle
       const circleData = {
         circleName,
         winnerPrize,
         loserChallenge,
-        duration,
+        duration: Number(duration),
         users: [
           {
-            userName: user.displayName || user.email, // User’s name or email
+            userName: user.displayName || user.email,
             adminStatus: true,
           },
         ],
       };
-
-      // Add to 'Circles' collection
-      await addDoc(collection(db, 'Circles'), circleData);
+  
+      await addDoc(circlesRef, circleData);
       Alert.alert('Circle created successfully!');
-      navigation.navigate('AddMembers'); // Move to the Add Members screen
+      navigation.navigate('AddMembers');
     } catch (error) {
       Alert.alert('Error creating Circle', error.message);
     }
@@ -56,12 +72,18 @@ export default function make_1({ navigation }) {
         style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
       />
       <TextInput
-        placeholder="Duration"
+        placeholder="Duration (in days)"
         value={duration}
-        onChangeText={setDuration}
+        onChangeText={(value) => setDuration(value.replace(/[^0-9]/g, ''))}
+        keyboardType="numeric"
         style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
       />
-      <Button title="Create Circle" onPress={handleCreateCircle} style={{ marginTop: 10 }} />
+      <Button
+        title="Create Circle"
+        onPress={handleCreateCircle}
+        disabled={!circleName || !winnerPrize || !loserChallenge || !duration} // Disable if any field is empty
+        style={{ marginTop: 10 }}
+      />
     </View>
   );
 }

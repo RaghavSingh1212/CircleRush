@@ -15,7 +15,7 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="index"
+        name="CircleRush"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
