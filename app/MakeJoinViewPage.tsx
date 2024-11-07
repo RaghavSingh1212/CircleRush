@@ -20,7 +20,7 @@ export default function MakeJoinViewPage({ navigation }) {
 
       <Button
         title="Join a Circle"
-        onPress={() => Alert.alert('Navigate to join circle screen')}
+        onPress={() => navigation.navigate('JoinCirclePage')}
         style={{ marginTop: 20 }}
       />
     </View>

@@ -57,7 +57,8 @@ export default function LoginScreen() {
         <Button title="Sign in with Google" onPress={handleGoogleSignIn} color="blue" />
       </View>
 
-      <Button title="Create Account" onPress={() => Alert.alert('Navigate to Sign Up Page')} />
+      {/* <Button title="Create Account" onPress={() => Alert.alert('Navigate to Sign Up Page')} /> */}
+      <Button title="Create Account" onPress={() => navigation.navigate('SignupScreen')} />
     </View>
   );
 }
