@@ -69,7 +69,8 @@ export default function ViewCirclesPage() {
   const renderCircle = ({ item }) => (
     <TouchableOpacity
       style={styles.circleContainer}
-    //   onPress={() => navigation.navigate('CircleDetails', { circleId: item.id })}
+      // onPress={() => navigation.navigate('CircleDetailsPage')}
+      onPress={() => navigation.navigate('CircleDetailsPage', { circleId: item.id, circleName: item.circleName })}
     >
       <Image source={require('@/assets/images/adaptive-icon.png')} style={styles.circleIcon} />
       <Text style={styles.circleText}>{item.circleName}</Text>

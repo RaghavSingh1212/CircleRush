@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { auth } from '@/firebase';  // Import Firebase auth
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithCredential } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
@@ -22,8 +22,11 @@ export default function LoginScreen() {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
+    // provider.addScope('profile');
+    // provider.addScope('email');
     try {
       await signInWithPopup(auth, provider);
+      // await signInWithRedirect(auth, provider);
       Alert.alert('Login Successful with Google!');
       // Navigate to the MakeJoin page
       navigation.navigate('MakeJoinViewPage');
