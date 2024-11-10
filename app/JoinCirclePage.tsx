@@ -35,6 +35,7 @@ export default function MakeCirclePage({ navigation }) {
       const userData = {
         userName: user.displayName || user.email,
         adminStatus: false, // Set admin status as needed
+        score: 0
       };
 
       console.log(circleId);

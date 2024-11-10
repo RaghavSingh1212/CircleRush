@@ -39,8 +39,10 @@ export default function MakeCirclePage({ navigation }) {
           {
             userName: user.displayName || user.email,
             adminStatus: true,
+            score: 0
           },
         ],
+        tasks: []
       };
   
       await addDoc(circlesRef, circleData);

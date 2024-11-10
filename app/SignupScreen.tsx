@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { auth } from '@/firebase';  // Import Firebase auth
+import { db, auth } from '@/firebase';  // Import Firebase auth
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { query, collection, where, getDocs, addDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SignupScreen() {
@@ -12,6 +13,13 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+
+      const userData = {
+        email: email
+      };
+      
+      const usersRef = collection(db, 'Users');
+      await addDoc(usersRef, userData);
       Alert.alert('Sign up Successful!');
     } catch (error) {
       Alert.alert('Signup Failed', error.message);
