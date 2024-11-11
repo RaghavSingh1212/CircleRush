@@ -1,69 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 export default function ViewCirclesPage() {
   const [circles, setCircles] = useState([]);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    // const fetchUserCircles = async () => {
-    //   const user = auth.currentUser;
-    //   if (!user) {
-    //     console.log("No authenticated user.");
-    //     return;
-    //   }
-      
-    //   console.log("Authenticated user:", user.displayName || user.email);
-  
-    //   const circlesRef = collection(db, 'Circles');
-    // //   const q = query(circlesRef, where('users', 'array-contains', { userName: user.displayName || user.email }));
-    // const q = query(circlesRef, where('circleName', '==', 'bruh1')); // <-- this query works
+  const fetchUserCircles = useCallback(async () => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-  
-    //   try {
-    //     const querySnapshot = await getDocs(q);
-    //     console.log("Query Snapshot:", querySnapshot);
-  
-    //     if (querySnapshot.empty) {
-    //       console.warn("No circles found for this user.");
-    //     }
-  
-    //     const circlesData = querySnapshot.docs.map(doc => ({
-    //       id: doc.id,
-    //       ...doc.data(),
-    //     }));
-  
-    //     console.log("Circles Data:", circlesData);
-  
-    //     setCircles(circlesData);
-    //   } catch (error) {
-    //     console.error("Error fetching circles:", error);
-    //   }
-    // };
+    const circlesRef = collection(db, "Circles");
+    const q = query(circlesRef); // Fetch all circles
 
-    const fetchUserCircles = async () => {
-        const user = auth.currentUser;
-        if (!user) return;
-      
-        const circlesRef = collection(db, 'Circles');
-        const q = query(circlesRef); // Fetch all circles
-      
-        const querySnapshot = await getDocs(q);
-        const circlesData = querySnapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter(circle => 
-            circle.users.some(u => u.userName === (user.displayName || user.email))
-          );
-      
-        setCircles(circlesData);
-      };
-      
-  
-    fetchUserCircles();
+    const querySnapshot = await getDocs(q);
+    const circlesData = querySnapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((circle) =>
+        circle.users.some((u) => u.userName === (user.displayName || user.email))
+      );
+
+    setCircles(circlesData);
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserCircles();
+    }, [fetchUserCircles])
+  );
   
 
   const renderCircle = ({ item }) => (

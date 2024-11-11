@@ -1,15 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, FlatList, Button, Alert } from "react-native";
-import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Button,
+  Alert,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { doc, collection, getDoc, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/firebase";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function CircleDetailsPage({ route, navigation }) {
   const { circleId } = route.params;
   const [circleData, setCircleData] = useState(null);
+  const [tasks, setTasks] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const user = auth.currentUser;
-
 
   const fetchCircleData = useCallback(async () => {
     const docRef = doc(db, "Circles", circleId);
@@ -23,38 +32,53 @@ export default function CircleDetailsPage({ route, navigation }) {
         (u) => u.userName === (user?.displayName || user?.email)
       );
 
-      // Update `isAdmin` state based on the user’s `adminStatus`
       setIsAdmin(userEntry?.adminStatus === true);
     }
   }, [circleId, user]);
 
+  const fetchTasks = useCallback(async () => {
+    const tasksRef = collection(db, "Circles", circleId, "Tasks");
+    const tasksSnap = await getDocs(tasksRef);
+
+    const tasksData = tasksSnap.docs.map((doc) => ({
+      ...doc.data(),
+      taskId: doc.id,
+    }));
+
+    setTasks(tasksData);
+  }, [circleId]);
+
   useFocusEffect(
     useCallback(() => {
       fetchCircleData();
-    }, [fetchCircleData])
+      fetchTasks();
+    }, [fetchCircleData, fetchTasks])
   );
 
   const handleDeleteCircle = async () => {
     Alert.alert(
       "Delete Circle",
-      "Are you sure you want to delete this circle?",
+      "Are you sure you want to delete this circle and all its tasks?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
             try {
-              // Reference to the circle document
-              const docRef = doc(db, "Circles", circleId);
+              // Reference to the Tasks subcollection
+              const tasksRef = collection(db, "Circles", circleId, "Tasks");
+              const tasksSnap = await getDocs(tasksRef);
 
-              // Delete the circle document
-              await deleteDoc(docRef);
+              // Delete each task document in the subcollection
+              const deleteTaskPromises = tasksSnap.docs.map((doc) => deleteDoc(doc.ref));
+              await Promise.all(deleteTaskPromises);
 
-              Alert.alert("Circle deleted successfully!");
+              // Delete the Circle document
+              const circleRef = doc(db, "Circles", circleId);
+              await deleteDoc(circleRef);
+
+              Alert.alert("Circle and all tasks deleted successfully!");
               navigation.goBack(); // Navigate back after deletion
             } catch (error) {
               Alert.alert("Error deleting circle", error.message);
@@ -65,33 +89,34 @@ export default function CircleDetailsPage({ route, navigation }) {
     );
   };
 
-  const handleCompleteTask = async (taskIndex) => {
-    const updatedTasks = [...circleData.tasks];
-    const task = updatedTasks[taskIndex];
 
-    // Check if the current user is the assigned user and task is not completed
-    if (task.assignedUserId !== (user?.displayName || user?.email) || task.completed) {
+  const handleCompleteTask = async (taskId) => {
+    const taskRef = doc(db, "Circles", circleId, "Tasks", taskId);
+    const task = tasks.find((t) => t.taskId === taskId);
+
+    if (!task || task.completed || task.assignedUserId !== (user?.displayName || user?.email)) {
       Alert.alert("You can only complete your own uncompleted tasks.");
       return;
     }
 
-    task.completed = true;
+    // Update task to mark as completed
+    await updateDoc(taskRef, { completed: true, completedAt: new Date() });
 
+    // Update user score locally and in Firestore
     const updatedUsers = circleData.users.map((u) => {
       if (u.userName === (user?.displayName || user?.email)) {
         return { ...u, score: (u.score || 0) + task.points };
       }
       return u;
     });
-
-    // Update Firestore
     const circleRef = doc(db, "Circles", circleId);
-    await updateDoc(circleRef, { tasks: updatedTasks });
+    await updateDoc(circleRef, { users: updatedUsers });
 
-    // Update local state
+    setTasks((prevTasks) =>
+      prevTasks.map((t) => (t.taskId === taskId ? { ...t, completed: true } : t))
+    );
     setCircleData((prevData) => ({
       ...prevData,
-      tasks: updatedTasks,
       users: updatedUsers,
     }));
 
@@ -100,67 +125,183 @@ export default function CircleDetailsPage({ route, navigation }) {
 
   if (!circleData) return <Text>Loading...</Text>;
 
+  const sortedUsers = [...(circleData.users || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{circleData.circleName}</Text>
-      <Text>Duration: {circleData.duration} days</Text>
-      <Text>Winner Prize: {circleData.winnerPrize}</Text>
-      <Text>Loser Challenge: {circleData.loserChallenge}</Text>
-      <Text>Users:</Text>
+      <View style={styles.infoBox}>
+        <Text style={styles.infoText}>Duration: {circleData.duration} days</Text>
+        <Text style={styles.infoText}>Winner Prize: {circleData.winnerPrize}</Text>
+        <Text style={styles.infoText}>Loser Challenge: {circleData.loserChallenge}</Text>
+      </View>
+
+      <Text style={styles.subHeader}>Users</Text>
       <FlatList
-        data={circleData.users}
+        data={sortedUsers}
         renderItem={({ item }) => (
-          <Text>{item.userName} - Score: {item.score || 0}</Text>
+          <View style={styles.userContainer}>
+            <Text style={styles.userName}>{item.userName}</Text>
+            <Text style={styles.userScore}>Score: {item.score || 0}</Text>
+          </View>
         )}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.userName}
       />
-      <Text style={styles.subHeader}>Tasks:</Text>
+
+      <Text style={styles.subHeader}>Tasks</Text>
       <FlatList
-        data={circleData.tasks}
-        renderItem={({ item, index }) => (
-          <View style={styles.taskContainer}>
+        data={tasks}
+        renderItem={({ item }) => (
+          <View style={[styles.taskContainer, item.completed && styles.completedTask]}>
             <Text style={styles.taskName}>{item.taskName}</Text>
-            <Text>Points: {item.points}</Text>
-            <Text>Assigned to: {item.assignedUserId}</Text>
-            <Text>Status: {item.completed ? "Completed" : "Incomplete"}</Text>
+            <Text style={styles.taskPoints}>Points: {item.points}</Text>
+            <Text style={styles.taskAssigned}>Assigned to: {item.assignedUserId}</Text>
+            <Text style={styles.taskStatus}>Status: {item.completed ? "Completed" : "Incomplete"}</Text>
             {item.assignedUserId === (user?.displayName || user?.email) && !item.completed && (
-              <Button
-                title="Complete Task"
-                onPress={() => handleCompleteTask(index)}
-              />
+              <TouchableOpacity
+                style={styles.completeButton}
+                onPress={() => handleCompleteTask(item.taskId)}
+              >
+                <Text style={styles.completeButtonText}>Complete Task</Text>
+              </TouchableOpacity>
             )}
           </View>
         )}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.taskId}
       />
 
-      <Button
-        title="Add Task"
-        onPress={() =>
-          navigation.navigate("AddTaskPage", { circleId: circleId })
-        }
-        style={{ marginTop: 10 }}
-      />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate("AddTaskPage", { circleId })}
+      >
+        <Text style={styles.addButtonText}>Add Task</Text>
+      </TouchableOpacity>
+
       {isAdmin && (
-        <Button
-          title="Delete Circle"
-          onPress={handleDeleteCircle}
-          style={{ marginTop: 10 }}
-        />
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeleteCircle()}
+        >
+          <Text style={styles.deleteButtonText}>Delete Circle</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  header: { fontSize: 24, marginBottom: 10 },
-  subHeader: { fontSize: 20, marginTop: 20, marginBottom: 10 },
-  taskContainer: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 5,
+  container: { flex: 1, padding: 20, backgroundColor: "#f3f4f6" },
+  header: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
   },
-  taskName: { fontWeight: "bold" },
+  infoBox: {
+    backgroundColor: "#e0e4e8",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
+  },
+  subHeader: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  userContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+    backgroundColor: "#ffffff",
+    marginBottom: 5,
+    borderRadius: 8,
+  },
+  userName: {
+    fontSize: 16,
+    color: "#444",
+  },
+  userScore: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#111",
+  },
+  taskContainer: {
+    padding: 15,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  completedTask: {
+    backgroundColor: "#d3eedd",
+  },
+  taskName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  taskPoints: {
+    fontSize: 16,
+    color: "#666",
+  },
+  taskAssigned: {
+    fontSize: 16,
+    color: "#666",
+  },
+  taskStatus: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  completeButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: "#4CAF50",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  completeButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+  },
+  addButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  deleteButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    backgroundColor: "#FF4136",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  loadingText: {
+    flex: 1,
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 18,
+    color: "#555",
+  },
 });
+

@@ -7,6 +7,7 @@ import {
   where,
   getDocs,
   doc,
+  addDoc,
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
@@ -27,21 +28,19 @@ export default function AddTaskPage({ route, navigation }) {
       const user = auth.currentUser;
 
       // Reference to the circle document
-      const circleRef = doc(db, "Circles", circleId);
+      const tasksRef = collection(db, "Circles", circleId, "Tasks");
 
       // Task data to add to the tasks array
       const taskData = {
         taskName,
         points: Number(points),
-        assignedUserId: (user?.displayName || user?.email), // Only this user can complete it
+        assignedUserId: user?.displayName || user?.email,
         completedAt: null,
-        completed: false
+        completed: false,
       };
 
       // Use arrayUnion to add the task to the tasks array in the specified circle
-      await updateDoc(circleRef, {
-        tasks: arrayUnion(taskData),
-      });
+      await addDoc(tasksRef, taskData);
 
       Alert.alert("Task added successfully!");
       navigation.goBack(); // Navigate back to the circle details or tasks list page
