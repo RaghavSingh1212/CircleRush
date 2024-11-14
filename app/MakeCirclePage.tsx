@@ -47,7 +47,7 @@ export default function MakeCirclePage({ navigation }) {
   
       await addDoc(circlesRef, circleData);
       Alert.alert('Circle created successfully!');
-      navigation.navigate('AddMembers');
+      navigation.navigate('AddMembers', { circleName });
     } catch (error) {
       Alert.alert('Error creating Circle', error.message);
     }

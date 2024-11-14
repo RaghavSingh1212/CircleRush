@@ -7,6 +7,8 @@ import ViewCirclesPage from './ViewCirclesPage';
 import MakeJoinViewPage from './MakeJoinViewPage';
 import MakeCirclePage from './MakeCirclePage';
 import AddTaskPage from './AddTaskPage';
+import AddMembersPage from './AddMembersPage';
+
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,11 @@ export default function App() {
         <Stack.Screen name="ViewCirclesPage" component={ViewCirclesPage} options={{ title: 'My Circles' }} />
         <Stack.Screen name="CircleDetailsPage" component={CircleDetailsPage} options={({ route }) => ({ title: route.params.circleName })} />
         <Stack.Screen name="AddTaskPage" component={AddTaskPage} options={({ route }) => ({ title: route.params.circleName })} />
+        <Stack.Screen
+          name="AddMembers"
+          component={AddMembersPage}
+          options={{ title: 'Invite Members' }} // Customize title for AddMembers screen
+        />
 
       </Stack.Navigator>
       
