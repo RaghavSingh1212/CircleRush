@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Button, FlatList, Alert, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { db, auth } from '@/firebase';
+import { db, auth, functions } from '@/firebase';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { collection, doc, updateDoc, arrayUnion, query, where, getDoc, getDocs } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 
 export default function AddMembersPage({ route, navigation }) {
   const { circleName } = route.params; // The circle ID passed from MakeCirclePage
@@ -30,6 +31,21 @@ export default function AddMembersPage({ route, navigation }) {
       await updateDoc(circleRef, {
         invitedMembers: arrayUnion({ email, invitedAt: new Date() }),
       });
+
+      console.log("Reached");
+
+      const testFunction = httpsCallable(functions, 'helloWorld');
+      await testFunction();
+
+      // const sendMailgunEmail = httpsCallable(functions, 'sendMailgunEmail');
+
+
+      // console.log("reached2");
+      // await sendMailgunEmail({
+      //   toEmails: email,
+      //   subject: `You've been invited to join ${circleId}!`,
+      //   text: `You've been invited to join the circle "${circleId}". Open the app to join!`,
+      // });
 
       setInvitedMembers((prev) => [...prev, email]); // Update local state to show in list
       setEmail(''); // Clear the input field
