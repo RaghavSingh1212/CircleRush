@@ -18,8 +18,6 @@ initializeApp();
 
 // const axios = require('axios');
 
-const MAILGUN_API_KEY = '9847040da32d69b051f61cd4dc0a1edb-79295dd0-06653579'
-const MAILGUN_DOMAIN = 'sandbox65f59b06d6a34ce8bf8de192e207e990.mailgun.org'
 
 exports.addmessage = onCall((request) => {
   logger.info("CODE RUNSSSS BITCHHHHHH")
