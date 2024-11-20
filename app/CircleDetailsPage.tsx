@@ -58,67 +58,6 @@ export default function CircleDetailsPage({ route, navigation }) {
     }, [fetchCircleData, fetchTasks])
   );
 
-  const handleResetCircle = async () => {
-    if (!isAdmin) {
-      Alert.alert("Only admins can reset the circle.");
-      return;
-    }
-
-    try {
-      const newCompletionTime = new Date();
-      newCompletionTime.setDate(newCompletionTime.getDate() + (circleData.duration || 0));
-
-      const circleRef = doc(db, "Circles", circleId);
-      await updateDoc(circleRef, {
-        status: "active",
-        completionTime: newCompletionTime,
-      });
-
-      setCircleData((prevData) => ({
-        ...prevData,
-        status: "active",
-        completionTime: newCompletionTime,
-      }));
-
-      Alert.alert("Circle has been reset!");
-    } catch (error) {
-      Alert.alert("Error resetting circle", error.message);
-    }
-  };
-
-  const handleDeleteCircle = async () => {
-    Alert.alert(
-      "Delete Circle",
-      "Are you sure you want to delete this circle and all its tasks?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              // Reference to the Tasks subcollection
-              const tasksRef = collection(db, "Circles", circleId, "Tasks");
-              const tasksSnap = await getDocs(tasksRef);
-
-              // Delete each task document in the subcollection
-              const deleteTaskPromises = tasksSnap.docs.map((doc) => deleteDoc(doc.ref));
-              await Promise.all(deleteTaskPromises);
-
-              // Delete the Circle document
-              const circleRef = doc(db, "Circles", circleId);
-              await deleteDoc(circleRef);
-
-              Alert.alert("Circle and all tasks deleted successfully!");
-              navigation.goBack(); // Navigate back after deletion
-            } catch (error) {
-              Alert.alert("Error deleting circle", error.message);
-            }
-          },
-        },
-      ]
-    );
-  };
 
 
   const handleCompleteTask = async (taskId) => {
@@ -207,24 +146,6 @@ export default function CircleDetailsPage({ route, navigation }) {
       >
         <Text style={styles.addButtonText}>Add Task</Text>
       </TouchableOpacity>
-
-      {isCompleted && isAdmin && (
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={() => handleResetCircle()}
-        >
-          <Text style={styles.resetButtonText}>Reset Circle</Text>
-        </TouchableOpacity>
-      )}
-
-      {isAdmin && (
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeleteCircle()}
-        >
-          <Text style={styles.deleteButtonText}>Delete Circle</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
@@ -343,17 +264,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#555",
   },
-  resetButton: {
-    marginTop: 10,
-    paddingVertical: 10,
-    backgroundColor: "#FFA500", // Orange color for reset
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  resetButtonText: {
-    color: "#ffffff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
+  
 });
 

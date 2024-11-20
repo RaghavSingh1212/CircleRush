@@ -15,6 +15,7 @@ const logger = require("firebase-functions/logger");
 const functions = require('firebase-functions');
 const { initializeApp, getApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
+const { beforeEmailSent } = require("firebase-functions/identity");
 
 
 const app = initializeApp();
@@ -103,6 +104,12 @@ exports.checkCircleCompletion = onSchedule("every 5 minutes", async () => {
   });
 });
 
+
+
+
+// write function for sending emails to join circle
+// write function for general email notfications, ex: 'From circleName: person A completed a task worth X points', can be enabled or disabled in circle settings
+// enable notifications for upcoming deadlines for tasks
 
 
 
