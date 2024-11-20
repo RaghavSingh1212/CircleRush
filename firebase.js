@@ -1,8 +1,9 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getFunctions } from 'firebase/functions';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { getAuth, GoogleAuthProvider  } from 'firebase/auth';
+
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -25,6 +26,8 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const functions = getFunctions(app);
 const googleProvider = new GoogleAuthProvider();
+
+connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
 
 export {

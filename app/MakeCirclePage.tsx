@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert } from 'react-native';
 import { db, auth } from '@/firebase';
-import { query, collection, where, getDocs, addDoc } from 'firebase/firestore';
+import { query, collection, where, getDocs, addDoc, doc, setDoc, Timestamp  } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
 export default function MakeCirclePage({ navigation }) {
@@ -28,6 +28,12 @@ export default function MakeCirclePage({ navigation }) {
         Alert.alert('A Circle with this name already exists!');
         return;
       }
+
+      const now = new Date();
+      const completionTime = Timestamp.fromDate(
+        new Date(now.getTime() + Number(duration) * 24 * 60 * 60 * 1000) // duration in days
+        // new Date(now.getTime() + 2 * 60 * 1000) // 2 minute completion time
+      );
   
       // If no duplicate found, proceed to create the Circle
       const circleData = {
@@ -35,6 +41,9 @@ export default function MakeCirclePage({ navigation }) {
         winnerPrize,
         loserChallenge,
         duration: Number(duration),
+        status: "active",
+        createdAt: Timestamp.now(),
+        completionTime: completionTime,
         users: [
           {
             userName: user.displayName || user.email,

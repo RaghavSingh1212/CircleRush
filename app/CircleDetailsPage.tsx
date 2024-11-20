@@ -18,6 +18,7 @@ export default function CircleDetailsPage({ route, navigation }) {
   const [circleData, setCircleData] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const user = auth.currentUser;
 
   const fetchCircleData = useCallback(async () => {
@@ -27,6 +28,8 @@ export default function CircleDetailsPage({ route, navigation }) {
     if (docSnap.exists()) {
       const data = docSnap.data();
       setCircleData(data);
+
+      setIsCompleted(data?.status === "completed");
 
       const userEntry = data.users.find(
         (u) => u.userName === (user?.displayName || user?.email)
@@ -54,6 +57,34 @@ export default function CircleDetailsPage({ route, navigation }) {
       fetchTasks();
     }, [fetchCircleData, fetchTasks])
   );
+
+  const handleResetCircle = async () => {
+    if (!isAdmin) {
+      Alert.alert("Only admins can reset the circle.");
+      return;
+    }
+
+    try {
+      const newCompletionTime = new Date();
+      newCompletionTime.setDate(newCompletionTime.getDate() + (circleData.duration || 0));
+
+      const circleRef = doc(db, "Circles", circleId);
+      await updateDoc(circleRef, {
+        status: "active",
+        completionTime: newCompletionTime,
+      });
+
+      setCircleData((prevData) => ({
+        ...prevData,
+        status: "active",
+        completionTime: newCompletionTime,
+      }));
+
+      Alert.alert("Circle has been reset!");
+    } catch (error) {
+      Alert.alert("Error resetting circle", error.message);
+    }
+  };
 
   const handleDeleteCircle = async () => {
     Alert.alert(
@@ -176,6 +207,15 @@ export default function CircleDetailsPage({ route, navigation }) {
       >
         <Text style={styles.addButtonText}>Add Task</Text>
       </TouchableOpacity>
+
+      {isCompleted && isAdmin && (
+        <TouchableOpacity
+          style={styles.resetButton}
+          onPress={() => handleResetCircle()}
+        >
+          <Text style={styles.resetButtonText}>Reset Circle</Text>
+        </TouchableOpacity>
+      )}
 
       {isAdmin && (
         <TouchableOpacity
@@ -302,6 +342,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: "#555",
+  },
+  resetButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    backgroundColor: "#FFA500", // Orange color for reset
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  resetButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
