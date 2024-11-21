@@ -102,11 +102,18 @@ export default function CircleDetailsPage({ route, navigation }) {
       users: updatedUsers,
     }));
 
-    // const sendMail = httpsCallable(functions, "sendMail");
+    const notifyOnTaskCompletion = httpsCallable(
+      functions,
+      "notifyOnTaskCompletion"
+    );
+    const response = await notifyOnTaskCompletion({
+      circleData: circleData,
+      taskData: task
+    });
     // const response = await sendMail({
-    //   recipientEmail: user?.email, 
-    //   subject: `Task ${task.taskName} has been completed!`, 
-    //   text: `Congrats on completing ${task.taskName}! You have earned ${task.points} for the circle ${circleData.circleName}!`, 
+    //   recipientEmail: user?.email,
+    //   subject: `Task ${task.taskName} has been completed!`,
+    //   text: `Congrats on completing ${task.taskName}! You have earned ${task.points} for the circle ${circleData.circleName}!`,
     //   html: null
     // });
     // console.log(response.data.message);
