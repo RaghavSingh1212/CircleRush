@@ -25,9 +25,38 @@ import {
 import { httpsCallable } from "firebase/functions";
 
 export default function AddMembersPage({ route, navigation }) {
-  const { circleName } = route.params; // The circle ID passed from MakeCirclePage
+  const { circleName } = route.params; // The circle ID passed from MakeCirclePage)
+
   const [email, setEmail] = useState("");
   const [invitedMembers, setInvitedMembers] = useState([]);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchInvitedMembers = async () => {
+      try {
+        // Query the circle document
+        const circlesRef = collection(db, "Circles");
+        const q = query(circlesRef, where("circleName", "==", circleName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          // Assuming circle names are unique, get the first matching document
+          const circleDoc = querySnapshot.docs[0];
+          const circleData = circleDoc.data();
+
+          // Populate the invitedMembers list from Firestore
+          setInvitedMembers(circleData.invitedMembers || []);
+        } else {
+          Alert.alert("Error", "Circle not found");
+        }
+      } catch (error) {
+        Alert.alert("Error fetching invited members", error.message);
+      }
+    };
+
+    fetchInvitedMembers();
+  }, [circleName]);
+  
 
   const handleSendInvitation = async () => {
     if (!email) {
@@ -46,6 +75,19 @@ export default function AddMembersPage({ route, navigation }) {
       const circleId = circleDoc.id;
       const circleRef = doc(db, "Circles", circleId);
 
+      const circleData = circleDoc.data();
+      const alreadyInvited = circleData.invitedMembers?.some(
+        (member) => member.email === email
+      );
+
+      if (alreadyInvited) {
+        Alert.alert(
+          "Member Already Invited",
+          `${email} has already been invited.`
+        );
+        return;
+      }
+
       // Add the invited email to 'invitedMembers' array in Firestore
       await updateDoc(circleRef, {
         invitedMembers: arrayUnion({ email, invitedAt: new Date() }),
@@ -53,23 +95,18 @@ export default function AddMembersPage({ route, navigation }) {
 
       console.log("Reached");
 
-      const generateEmailBody = httpsCallable(functions, "generateEmailBody");
-      const response = await generateEmailBody({
-        recipientName: email, // Replace with actual name if available
-        circleName: circleName,
-        // invitationLink: `https://app.example.com/circles/${circleId}/join`, // Replace with your app's actual invitation link
+      const sendMail = httpsCallable(functions, "sendMail");
+      const response = await sendMail({
+        recipientEmail: email,
+        subject: `Join the Circle!`,
+        text: `You have been invited to join the circle ${circleName} by ${
+          user?.displayName || user?.email
+        }! Download the app and join the Circle now!`,
+        html: `You have been invited to join the circle ${circleName} by ${
+          user?.displayName || user?.email
+        }! Download the app and join the Circle now!`,
       });
-
-      console.log("Generated Email Body:", response.data.emailBody);
-
-      // const sendMailgunEmail = httpsCallable(functions, 'sendMailgunEmail');
-
-      // console.log("reached2");
-      // await sendMailgunEmail({
-      //   toEmails: email,
-      //   subject: `You've been invited to join ${circleId}!`,
-      //   text: `You've been invited to join the circle "${circleId}". Open the app to join!`,
-      // });
+      // console.log(response.data.message);
 
       setInvitedMembers((prev) => [...prev, email]); // Update local state to show in list
       setEmail(""); // Clear the input field
@@ -113,13 +150,43 @@ export default function AddMembersPage({ route, navigation }) {
       />
 
       <Text style={{ fontSize: 18, marginTop: 30 }}>Invited Members:</Text>
-      <FlatList
+      {/* <FlatList
         data={invitedMembers}
         keyExtractor={(item) => item}
         renderItem={({ item }) => <Text style={{ fontSize: 16 }}>{item}</Text>}
+      /> */}
+      <FlatList
+        data={invitedMembers}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.memberContainer}>
+            <Text style={styles.memberText}>{item.email}</Text>
+            <Text style={styles.dateText}>
+              Invited At: {item.invitedAt?.toDate
+                ? item.invitedAt.toDate().toLocaleString()
+                : "Unknown"}
+            </Text>
+          </View>
+        )}
       />
 
       <Button title="Done" onPress={handleDone} style={{ marginTop: 20 }} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  memberContainer: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+  },
+  memberText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dateText: {
+    fontSize: 14,
+    color: "gray",
+  },
+});

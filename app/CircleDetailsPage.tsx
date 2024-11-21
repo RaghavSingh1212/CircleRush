@@ -9,9 +9,17 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { doc, collection, getDoc, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
-import { db, auth } from "@/firebase";
+import {
+  doc,
+  collection,
+  getDoc,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { db, auth, functions } from "@/firebase";
 import { useFocusEffect } from "@react-navigation/native";
+import { httpsCallable } from "firebase/functions";
 
 export default function CircleDetailsPage({ route, navigation }) {
   const { circleId } = route.params;
@@ -58,13 +66,15 @@ export default function CircleDetailsPage({ route, navigation }) {
     }, [fetchCircleData, fetchTasks])
   );
 
-
-
   const handleCompleteTask = async (taskId) => {
     const taskRef = doc(db, "Circles", circleId, "Tasks", taskId);
     const task = tasks.find((t) => t.taskId === taskId);
 
-    if (!task || task.completed || task.assignedUserId !== (user?.displayName || user?.email)) {
+    if (
+      !task ||
+      task.completed ||
+      task.assignedUserId !== (user?.displayName || user?.email)
+    ) {
       Alert.alert("You can only complete your own uncompleted tasks.");
       return;
     }
@@ -83,27 +93,46 @@ export default function CircleDetailsPage({ route, navigation }) {
     await updateDoc(circleRef, { users: updatedUsers });
 
     setTasks((prevTasks) =>
-      prevTasks.map((t) => (t.taskId === taskId ? { ...t, completed: true } : t))
+      prevTasks.map((t) =>
+        t.taskId === taskId ? { ...t, completed: true } : t
+      )
     );
     setCircleData((prevData) => ({
       ...prevData,
       users: updatedUsers,
     }));
 
+    // const sendMail = httpsCallable(functions, "sendMail");
+    // const response = await sendMail({
+    //   recipientEmail: user?.email, 
+    //   subject: `Task ${task.taskName} has been completed!`, 
+    //   text: `Congrats on completing ${task.taskName}! You have earned ${task.points} for the circle ${circleData.circleName}!`, 
+    //   html: null
+    // });
+    // console.log(response.data.message);
+
     Alert.alert("Task marked as completed!");
   };
 
   if (!circleData) return <Text>Loading...</Text>;
 
-  const sortedUsers = [...(circleData.users || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
+  const sortedUsers = [...(circleData.users || [])].sort(
+    (a, b) => (b.score || 0) - (a.score || 0)
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{circleData.circleName}</Text>
       <View style={styles.infoBox}>
-        <Text style={styles.infoText}>Duration: {circleData.duration} days</Text>
-        <Text style={styles.infoText}>Winner Prize: {circleData.winnerPrize}</Text>
-        <Text style={styles.infoText}>Loser Challenge: {circleData.loserChallenge}</Text>
+        <Text style={styles.infoText}>
+          Duration: {circleData.duration} days
+        </Text>
+        <Text style={styles.infoText}>
+          Winner Prize: {circleData.winnerPrize}
+        </Text>
+        <Text style={styles.infoText}>
+          Loser Challenge: {circleData.loserChallenge}
+        </Text>
       </View>
 
       <Text style={styles.subHeader}>Users</Text>
@@ -122,19 +151,29 @@ export default function CircleDetailsPage({ route, navigation }) {
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
-          <View style={[styles.taskContainer, item.completed && styles.completedTask]}>
+          <View
+            style={[
+              styles.taskContainer,
+              item.completed && styles.completedTask,
+            ]}
+          >
             <Text style={styles.taskName}>{item.taskName}</Text>
             <Text style={styles.taskPoints}>Points: {item.points}</Text>
-            <Text style={styles.taskAssigned}>Assigned to: {item.assignedUserId}</Text>
-            <Text style={styles.taskStatus}>Status: {item.completed ? "Completed" : "Incomplete"}</Text>
-            {item.assignedUserId === (user?.displayName || user?.email) && !item.completed && (
-              <TouchableOpacity
-                style={styles.completeButton}
-                onPress={() => handleCompleteTask(item.taskId)}
-              >
-                <Text style={styles.completeButtonText}>Complete Task</Text>
-              </TouchableOpacity>
-            )}
+            <Text style={styles.taskAssigned}>
+              Assigned to: {item.assignedUserId}
+            </Text>
+            <Text style={styles.taskStatus}>
+              Status: {item.completed ? "Completed" : "Incomplete"}
+            </Text>
+            {item.assignedUserId === (user?.displayName || user?.email) &&
+              !item.completed && (
+                <TouchableOpacity
+                  style={styles.completeButton}
+                  onPress={() => handleCompleteTask(item.taskId)}
+                >
+                  <Text style={styles.completeButtonText}>Complete Task</Text>
+                </TouchableOpacity>
+              )}
           </View>
         )}
         keyExtractor={(item) => item.taskId}
@@ -264,6 +303,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#555",
   },
-  
 });
-

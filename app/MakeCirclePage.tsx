@@ -51,7 +51,6 @@ export default function MakeCirclePage({ navigation }) {
             score: 0
           },
         ],
-        tasks: []
       };
   
       await addDoc(circlesRef, circleData);

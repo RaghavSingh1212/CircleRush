@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  FlatList,
   Switch,
 } from "react-native";
 import {
@@ -15,7 +16,8 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db, auth } from "@/firebase";
+import { db, auth, functions } from "@/firebase";
+import { httpsCallable } from "firebase/functions";
 
 export default function CircleSettingsPage({ route, navigation }) {
   const { circleId } = route.params;
@@ -97,6 +99,44 @@ export default function CircleSettingsPage({ route, navigation }) {
     } catch (error) {
       Alert.alert("Error updating notification settings", error.message);
     }
+  };
+
+  const handleDeleteUser = async (userName) => {
+    if (!isAdmin) {
+      Alert.alert("Unauthorized", "Only admins can remove users.");
+      return;
+    }
+
+    Alert.alert(
+      "Remove User",
+      `Are you sure you want to remove ${userName} from this circle?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const updatedUsers = circleData.users.filter(
+                (u) => u.userName !== userName
+              );
+
+              const circleRef = doc(db, "Circles", circleId);
+              await updateDoc(circleRef, { users: updatedUsers });
+
+              setCircleData((prevData) => ({
+                ...prevData,
+                users: updatedUsers,
+              }));
+
+              Alert.alert("Success", `${userName} has been removed.`);
+            } catch (error) {
+              Alert.alert("Error", "Failed to remove user. Please try again.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   // Reset Circle
@@ -201,6 +241,39 @@ export default function CircleSettingsPage({ route, navigation }) {
         </View>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>Users in Circle</Text>
+        <FlatList
+          data={circleData.users}
+          keyExtractor={(item) => item.userName}
+          renderItem={({ item }) => (
+            <View style={styles.userContainer}>
+              <Text style={styles.userName}>{item.userName}</Text>
+              {isAdmin && (
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteUser(item.userName)}
+                >
+                  <Text style={styles.deleteButtonText}>  remove  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        />
+      </View>
+
+      {isAdmin && (
+        <TouchableOpacity
+          style={styles.inviteButton}
+          onPress={() =>
+            navigation.navigate("AddMembers", {
+              circleName: circleData.circleName,
+            })
+          }
+        >
+          <Text style={styles.inviteButtonText}>Invite Members</Text>
+        </TouchableOpacity>
+      )}
       {isAdmin && isCompleted && (
         <TouchableOpacity
           style={styles.resetButton}
@@ -281,6 +354,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  inviteButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  inviteButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -289,5 +374,17 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: "#555",
+  },
+  userContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+  },
+  userName: {
+    fontSize: 16,
+    color: "#333",
   },
 });

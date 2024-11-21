@@ -9,56 +9,25 @@
 
 const { onRequest, onCall } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const logger = require("firebase-functions/logger");
 
-
-const functions = require('firebase-functions');
 const { initializeApp, getApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { beforeEmailSent } = require("firebase-functions/identity");
 
+const sgMail = require('@sendgrid/mail')
+require("dotenv").config();
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const app = initializeApp();
 const db = getFirestore(app);
-
+const logger = require("firebase-functions/logger");
+const functions = require('firebase-functions');
 
 exports.helloWorld = onCall(() => {
   logger.info("Hello logs!", { structuredData: true });
   console.log("SHITTTTT");
 });
 
-exports.generateEmailBody = onCall((request, context) => {
-  // Extract inputs from the client
-  const { recipientName, circleName } = request.data;
-
-  console.log(recipientName);
-  console.log(circleName);
-
-
-  if (!recipientName || !circleName) {
-    throw new functions.https.HttpsError(
-      "invalid-argument",
-      "Missing required input fields: recipientName, circleName"
-    );
-  }
-
-  // Construct the email body
-  const emailBody = `
-    Hi ${recipientName},
-
-    You have been invited to join the circle "${circleName}"!
-
-    Click the link below to accept your invitation:
-
-    Best regards,
-    The CircleRush Team
-  `;
-
-  logger.info("Generated email body:", { emailBody });
-
-  // Return the generated email body
-  return { emailBody };
-});
 
 
 
@@ -105,59 +74,48 @@ exports.checkCircleCompletion = onSchedule("every 5 minutes", async () => {
 });
 
 
-
-
 // write function for sending emails to join circle
 // write function for general email notfications, ex: 'From circleName: person A completed a task worth X points', can be enabled or disabled in circle settings
 // enable notifications for upcoming deadlines for tasks
 
 
 
+// const msg = {
+//   to: 'ppurathe@ucsc.edu', // Change to your recipient
+//   from: 'ppurathe@ucsc.edu', // Change to your verified sender
+//   subject: 'Sending with SendGrid is Fun',
+//   text: 'and easy to do anywhere, even with Node.js',
+//   html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+// }
+exports.sendMail = onCall(async (request, context) => {
+  console.log(process.env.SENDGRID_API_KEY)
+  const { recipientEmail, subject, text, html } = request.data;
 
+  console.log(recipientEmail);
+  console.log(subject);
+  console.log(text);
+  console.log(html);
 
+  const message = {
+    to: recipientEmail, // Change to your recipient
+    from: 'mailcirclerush@gmail.com', // Change to your verified sender
+    subject: subject,
+    text: text,
+    html: html,
+  }
 
+  await sgMail
+    .send(message)
+  .then(() => {
+    console.log('Email sent')
+  })
+  .catch((error) => {
+    console.error(error)
+  })
 
+  return {message};
+})
 
-// const axios = require('axios');
-
-
-// Cloud Function to send an email using Mailgun
-// exports.sendMailgunEmail = functions.https.onCall(async (data, context) => {
-
-//   logger.info("REACHED function ");
-
-//   const { toEmails, subject, text } = data; // Extract recipients, subject, and text from request
-
-//   const mailgunUrl = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
-
-//   console.log("made it to function");
-//   // Form data payload for the Mailgun API
-//   const emailData = {
-//     from: `Excited User <mailgun@${MAILGUN_DOMAIN}>`,
-//     to: 'pranavsp2003@gmail.com', // array of emails or single email
-//     subject: subject,
-//     text: text,
-//   };
-
-//   try {
-//     const response = await axios.post(mailgunUrl, null, {
-//       auth: {
-//         username: 'api',
-//         password: MAILGUN_API_KEY,
-//       },
-//       params: emailData,
-//     });
-
-//     return { success: true, message: 'Email sent successfully!' };
-//   } catch (error) {
-//     console.error('Error sending email:', error.response ? error.response.data : error.message);
-//     throw new functions.https.HttpsError('internal', 'Failed to send email');
-//   }
-// });
-
-
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
 
 
 
