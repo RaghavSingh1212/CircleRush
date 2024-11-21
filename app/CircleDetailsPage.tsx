@@ -108,7 +108,7 @@ export default function CircleDetailsPage({ route, navigation }) {
     );
     const response = await notifyOnTaskCompletion({
       circleData: circleData,
-      taskData: task
+      taskData: task,
     });
     // const response = await sendMail({
     //   recipientEmail: user?.email,
@@ -165,10 +165,18 @@ export default function CircleDetailsPage({ route, navigation }) {
             ]}
           >
             <Text style={styles.taskName}>{item.taskName}</Text>
-            <Text style={styles.taskPoints}>Points: {item.points}</Text>
-            <Text style={styles.taskAssigned}>
+            <Text style={styles.taskDetails}>Points: {item.points}</Text>
+            <Text style={styles.taskDetails}>
               Assigned to: {item.assignedUserId}
             </Text>
+            {item.deadline ? (
+              <Text style={styles.taskDetails}>
+                Deadline:{" "}
+                {new Date(item.deadline.seconds * 1000).toLocaleDateString()}
+              </Text>
+            ) : (
+              <Text style={styles.taskDeadline}>Deadline: No deadline</Text>
+            )}
             <Text style={styles.taskStatus}>
               Status: {item.completed ? "Completed" : "Incomplete"}
             </Text>
@@ -254,11 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#222",
   },
-  taskPoints: {
-    fontSize: 16,
-    color: "#666",
-  },
-  taskAssigned: {
+  taskDetails: {
     fontSize: 16,
     color: "#666",
   },

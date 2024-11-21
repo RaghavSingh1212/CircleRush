@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Alert } from "react-native";
+import { View, TextInput, Button, Alert, TouchableOpacity, Text } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { db, auth } from "@/firebase";
 import {
   query,
@@ -17,6 +18,9 @@ export default function AddTaskPage({ route, navigation }) {
   const { circleId } = route.params; // Retrieve circleId from navigation route params
   const [taskName, setTaskName] = useState("");
   const [points, setPoints] = useState("");
+  const [deadline, setDeadline] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  
 
   const handleAddTask = async () => {
     if (!taskName || !points) {
@@ -37,6 +41,7 @@ export default function AddTaskPage({ route, navigation }) {
         assignedUserId: user?.displayName || user?.email,
         completedAt: null,
         completed: false,
+        deadline: deadline, // Save the selected deadline
       };
 
       // Use arrayUnion to add the task to the tasks array in the specified circle
@@ -48,6 +53,19 @@ export default function AddTaskPage({ route, navigation }) {
       Alert.alert("Error adding task", error.message);
     }
   };
+
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false); // Close the date picker
+    if (selectedDate) {
+      setDeadline(selectedDate); // Update the deadline state
+    }
+  };
+
+
 
   return (
     <View style={{ padding: 20 }}>
@@ -76,6 +94,29 @@ export default function AddTaskPage({ route, navigation }) {
           paddingLeft: 8,
         }}
       />
+      <TouchableOpacity
+        onPress={showDatePickerModal}
+        style={{
+          padding: 10,
+          backgroundColor: "#007BFF",
+          borderRadius: 5,
+          marginBottom: 20,
+        }}
+      >
+        <Text style={{ color: "#fff", textAlign: "center" }}>
+          {deadline
+            ? `Deadline: ${deadline.toLocaleDateString()}`
+            : "Select Deadline"}
+        </Text>
+      </TouchableOpacity>
+      {showDatePicker && (
+        <DateTimePicker
+          value={deadline || new Date()}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
       <Button
         title="Add Task"
         onPress={handleAddTask}
