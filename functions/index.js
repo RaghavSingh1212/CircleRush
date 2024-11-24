@@ -190,3 +190,93 @@ exports.notifyOnTaskCompletion = onCall(async (request, context) => {
   }
 }
 );
+
+exports.remindUpcomingTasks = onSchedule("every 24 hours", async () => {
+  const now = new Date();
+  const upcomingDate = new Date();
+  upcomingDate.setDate(upcomingDate.getDate() + 1); // Tasks due in the next 24 hours
+
+  try {
+    // Query all circles
+    const circlesSnapshot = await db.collection("Circles").get();
+
+    if (circlesSnapshot.empty) {
+      logger.info("No circles found.");
+      return;
+    }
+
+    const reminderPromises = circlesSnapshot.docs.map(async (circleDoc) => {
+      const circleData = circleDoc.data();
+      const tasksRef = circleDoc.ref.collection("Tasks");
+      const tasksSnapshot = await tasksRef.get();
+
+      if (tasksSnapshot.empty) {
+        logger.info(`No tasks found for circle: ${circleData.circleName}`);
+        return;
+      } else {
+        logger.info(`tasks: ${circleData.circleName}`);
+      }
+
+      const upcomingTasks = tasksSnapshot.docs.filter((taskDoc) => {
+        const taskData = taskDoc.data();
+        const deadline = taskData.deadline ? taskData.deadline.toDate() : null;
+
+        return (
+          deadline &&
+          deadline >= now &&
+          deadline <= upcomingDate &&
+          !taskData.reminded
+        );
+      });
+
+      if (upcomingTasks.length === 0) {
+        logger.info(`No upcoming tasks to remind for circle: ${circleData.circleName}`);
+        return;
+      }
+
+      // Process each task and notify users
+      const taskPromises = upcomingTasks.map(async (taskDoc) => {
+        const taskData = taskDoc.data();
+
+        const emailPromises = circleData.users.map(async (user) => {
+          if (user.notifications?.taskDeadline) {
+            const recipientEmail = user.userName;
+
+            try {
+              await sendEmail({
+                recipientEmail: recipientEmail,
+                subject: `Reminder: Task "${taskData.taskName}" Deadline Approaching`,
+                text: `Dear ${user.userName},\n\nThe task "${taskData.taskName}" in the circle "${circleData.circleName}" is due soon on ${taskData.deadline.toDate().toLocaleString()}.\n\nPlease make sure to complete it on time.\n\nBest regards,\nCircleRush Team`,
+                html: `<p>Dear ${user.userName},</p>
+                       <p>The task "<b>${taskData.taskName}</b>" in the circle "<b>${circleData.circleName}</b>" is due soon on <b>${taskData.deadline.toDate().toLocaleString()}</b>.</p>
+                       <p>Please make sure to complete it on time.</p>
+                       <p>Best regards,<br/>CircleRush Team</p>`,
+              });
+
+              logger.info(`Reminder email sent to ${recipientEmail}`);
+              console.log(`Reminder email sent to ${recipientEmail} for ${taskData.taskName} for ${circleData.circleName}`);
+            } catch (error) {
+              logger.error(
+                `Error sending email to ${recipientEmail}:`,
+                error.message
+              );
+            }
+          }
+        });
+
+        // Mark the task as reminded
+        await taskDoc.ref.update({ reminded: true });
+
+        return Promise.all(emailPromises);
+      });
+
+      return Promise.all(taskPromises);
+    });
+
+    await Promise.all(reminderPromises);
+
+    logger.info("All upcoming task reminders sent successfully.");
+  } catch (error) {
+    logger.error("Error sending reminders for upcoming tasks:", error);
+  }
+});

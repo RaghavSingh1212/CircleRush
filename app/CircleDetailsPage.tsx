@@ -175,7 +175,7 @@ export default function CircleDetailsPage({ route, navigation }) {
                 {new Date(item.deadline.seconds * 1000).toLocaleDateString()}
               </Text>
             ) : (
-              <Text style={styles.taskDeadline}>Deadline: No deadline</Text>
+              <Text style={styles.taskDetails}>Deadline: No deadline</Text>
             )}
             <Text style={styles.taskStatus}>
               Status: {item.completed ? "Completed" : "Incomplete"}

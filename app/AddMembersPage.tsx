@@ -56,7 +56,6 @@ export default function AddMembersPage({ route, navigation }) {
 
     fetchInvitedMembers();
   }, [circleName]);
-  
 
   const handleSendInvitation = async () => {
     if (!email) {
@@ -89,8 +88,12 @@ export default function AddMembersPage({ route, navigation }) {
       }
 
       // Add the invited email to 'invitedMembers' array in Firestore
+
+      const newMember = { email, invitedAt: new Date() };
+
+      // Add the invited email to 'invitedMembers' array in Firestore
       await updateDoc(circleRef, {
-        invitedMembers: arrayUnion({ email, invitedAt: new Date() }),
+        invitedMembers: arrayUnion(newMember),
       });
 
       console.log("Reached");
@@ -108,7 +111,7 @@ export default function AddMembersPage({ route, navigation }) {
       });
       // console.log(response.data.message);
 
-      setInvitedMembers((prev) => [...prev, email]); // Update local state to show in list
+      setInvitedMembers((prev) => [...prev, newMember]); // Update local state to show in list
       setEmail(""); // Clear the input field
 
       Alert.alert(`Invitation sent to ${email}!`);
@@ -162,7 +165,8 @@ export default function AddMembersPage({ route, navigation }) {
           <View style={styles.memberContainer}>
             <Text style={styles.memberText}>{item.email}</Text>
             <Text style={styles.dateText}>
-              Invited At: {item.invitedAt?.toDate
+              Invited At:{" "}
+              {item.invitedAt?.toDate
                 ? item.invitedAt.toDate().toLocaleString()
                 : "Unknown"}
             </Text>
