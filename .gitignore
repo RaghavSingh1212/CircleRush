@@ -19,6 +19,7 @@ web-build/
 expo-env.d.ts
 # @end expo-clisendgrid.env
 sendgrid.env
+.env
 
 
 firebase-debug.log

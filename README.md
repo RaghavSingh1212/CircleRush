@@ -8,12 +8,29 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
    npm install
+   npm fund
+   npm audit fix --force
+   sudo npm install -g firebase-tools
+   sudo npm i --save firebase-functions
+   npm install dotenv --save
    ```
+
+2. Add the .env file with the SENDGRID_API_KEY in the functions folder
 
 2. Start the app
 
    ```bash
     npx expo start
+   ```
+
+2. Start two new terminals
+
+   ```bash
+    firebase emulators:start --only functions
+   ```
+
+   ```bash
+    firebase functions:shell
    ```
 
 In the output, you'll find options to open the app in a

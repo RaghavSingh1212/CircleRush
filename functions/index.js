@@ -97,6 +97,8 @@ exports.checkCircleCompletion = onSchedule("every 5 minutes", async () => {
 // }
 
 async function sendEmail({ recipientEmail, subject, text, html }) {
+  console.log(process.env.SENDGRID_API_KEY)
+  logger.info(process.env.SENDGRID_API_KEY)
   const message = {
     to: recipientEmail,
     from: "mailcirclerush@gmail.com", // Verified sender
@@ -117,7 +119,8 @@ async function sendEmail({ recipientEmail, subject, text, html }) {
 
 
 exports.sendMail = onCall(async (request, context) => {
-  console.log(process.env.SENDGRID_API_KEY)
+  console.log(`KEY: ${process.env.SENDGRID_API_KEY}`)
+  logger.info(process.env.SENDGRID_API_KEY)
   const { recipientEmail, subject, text, html } = request.data;
 
   console.log(recipientEmail);
