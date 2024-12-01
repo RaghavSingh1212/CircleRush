@@ -5,7 +5,7 @@ import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } f
 import { query, collection, where, getDocs, addDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
-const SignupScreen = () => {
+export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();  // Access navigation
@@ -187,4 +187,4 @@ createButtonText: {
 }
 });
 
-export default SignupScreen;
+//export default SignupScreen;

@@ -4,7 +4,7 @@ import { auth } from '@/firebase';  // Import Firebase auth
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = () => {
+export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
@@ -241,4 +241,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default LoginScreen;
+//export default LoginScreen;
