@@ -1,32 +1,19 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Button,
   FlatList,
   Alert,
   TextInput,
   TouchableOpacity,
-  Image,
   StyleSheet,
 } from "react-native";
 import { db, auth, functions } from "@/firebase";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import {
-  collection,
-  doc,
-  updateDoc,
-  arrayUnion,
-  query,
-  where,
-  getDoc,
-  getDocs,
-} from "firebase/firestore";
+import { collection, doc, updateDoc, arrayUnion, query, where, getDocs } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 
 export default function AddMembersPage({ route, navigation }) {
-  const { circleName } = route.params; // The circle ID passed from MakeCirclePage)
-
+  const { circleName } = route.params; // The circle ID passed from MakeCirclePage
   const [email, setEmail] = useState("");
   const [invitedMembers, setInvitedMembers] = useState([]);
   const user = auth.currentUser;
@@ -34,17 +21,13 @@ export default function AddMembersPage({ route, navigation }) {
   useEffect(() => {
     const fetchInvitedMembers = async () => {
       try {
-        // Query the circle document
         const circlesRef = collection(db, "Circles");
         const q = query(circlesRef, where("circleName", "==", circleName));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          // Assuming circle names are unique, get the first matching document
           const circleDoc = querySnapshot.docs[0];
           const circleData = circleDoc.data();
-
-          // Populate the invitedMembers list from Firestore
           setInvitedMembers(circleData.invitedMembers || []);
         } else {
           Alert.alert("Error", "Circle not found");
@@ -64,12 +47,15 @@ export default function AddMembersPage({ route, navigation }) {
     }
 
     try {
-      // Reference to the circle document's 'invitedMembers' field
       const circlesRef = collection(db, "Circles");
       const q = query(circlesRef, where("circleName", "==", circleName));
       const querySnapshot = await getDocs(q);
 
-      // Assuming circle names are unique, get the first matching document
+      if (querySnapshot.empty) {
+        Alert.alert("Error", "Circle not found");
+        return;
+      }
+
       const circleDoc = querySnapshot.docs[0];
       const circleId = circleDoc.id;
       const circleRef = doc(db, "Circles", circleId);
@@ -87,37 +73,25 @@ export default function AddMembersPage({ route, navigation }) {
         return;
       }
 
-      // Add the invited email to 'invitedMembers' array in Firestore
-
       const newMember = { email, invitedAt: new Date() };
-
-      // Add the invited email to 'invitedMembers' array in Firestore
       await updateDoc(circleRef, {
         invitedMembers: arrayUnion(newMember),
       });
 
-      console.log("Reached");
-
       const sendMail = httpsCallable(functions, "sendMail");
-      const response = await sendMail({
+      await sendMail({
         recipientEmail: email,
         subject: `Join the Circle!`,
         text: `You have been invited to join the circle ${circleName} by ${
           user?.displayName || user?.email
         }! Download the app and join the Circle now!`,
-        html: `You have been invited to join the circle ${circleName} by ${
-          user?.displayName || user?.email
-        }! Download the app and join the Circle now!`,
       });
-      // console.log(response.data.message);
 
-      setInvitedMembers((prev) => [...prev, newMember]); // Update local state to show in list
-      setEmail(""); // Clear the input field
-
+      setInvitedMembers((prev) => [...prev, newMember]);
+      setEmail("");
       Alert.alert(`Invitation sent to ${email}!`);
     } catch (error) {
       Alert.alert("Error sending invitation", error.message);
-      console.log(error);
     }
   };
 
@@ -129,61 +103,114 @@ export default function AddMembersPage({ route, navigation }) {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Invite Members</Text>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Invite Members</Text>
+        <TextInput
+          placeholder="Enter email address"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input}
+        />
+        <TouchableOpacity
+          style={[
+            styles.button,
+            email ? styles.buttonActive : styles.buttonDisabled,
+          ]}
+          onPress={handleSendInvitation}
+          disabled={!email}
+        >
+          <Text style={styles.buttonText}>Send Invitation</Text>
+        </TouchableOpacity>
+      </View>
 
-      <TextInput
-        placeholder="Enter email address"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 20,
-          paddingLeft: 8,
-        }}
-      />
-      <Button
-        title="Send Invitation"
-        onPress={handleSendInvitation}
-        disabled={!email}
-      />
+      <View style={styles.card}>
+        <Text style={styles.subtitle}>Invited Members:</Text>
+        <FlatList
+          data={invitedMembers}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.memberContainer}>
+              <Text style={styles.memberText}>{item.email}</Text>
+              <Text style={styles.dateText}>
+                Invited At:{" "}
+                {item.invitedAt?.toDate
+                  ? item.invitedAt.toDate().toLocaleString()
+                  : "Unknown"}
+              </Text>
+            </View>
+          )}
+        />
+      </View>
 
-      <Text style={{ fontSize: 18, marginTop: 30 }}>Invited Members:</Text>
-      {/* <FlatList
-        data={invitedMembers}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => <Text style={{ fontSize: 16 }}>{item}</Text>}
-      /> */}
-      <FlatList
-        data={invitedMembers}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.memberContainer}>
-            <Text style={styles.memberText}>{item.email}</Text>
-            <Text style={styles.dateText}>
-              Invited At:{" "}
-              {item.invitedAt?.toDate
-                ? item.invitedAt.toDate().toLocaleString()
-                : "Unknown"}
-            </Text>
-          </View>
-        )}
-      />
-
-      <Button title="Done" onPress={handleDone} style={{ marginTop: 20 }} />
+      <TouchableOpacity style={[styles.button, styles.buttonActive]} onPress={handleDone}>
+        <Text style={styles.buttonText}>Done</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    top: 0,
+    backgroundColor: "#C4DDEB66",
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
+  input: {
+    height: 50,
+    // borderColor: "#CCC",
+    backgroundColor: '#C4DDEB4D',
+    // borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  button: {
+    height: 50,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonActive: {
+    backgroundColor: "#95C0D7",
+  },
+  buttonDisabled: {
+    backgroundColor: "#D3D3D3",
+  },
+  buttonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   memberContainer: {
-    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "gray",
+    borderBottomColor: "#CCC",
+    paddingVertical: 10,
   },
   memberText: {
     fontSize: 16,
@@ -191,6 +218,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 14,
-    color: "gray",
+    color: "#777",
   },
 });

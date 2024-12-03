@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { db, auth } from '@/firebase';
-import { query, collection, where, getDocs, addDoc, doc, setDoc, Timestamp  } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
+import { query, collection, where, getDocs, addDoc, Timestamp } from 'firebase/firestore';
 
-export default function MakeCirclePage({ navigation }) {
+const MakeCirclePage = ({ navigation }) => {
   const [circleName, setCircleName] = useState('');
   const [winnerPrize, setWinnerPrize] = useState('');
   const [loserChallenge, setLoserChallenge] = useState('');
@@ -15,15 +14,22 @@ export default function MakeCirclePage({ navigation }) {
       Alert.alert('All fields are required!');
       return;
     }
-  
+
     try {
       const user = auth.currentUser;
-  
-      // Query Firestore to check if a Circle with the same name already exists for the user
+
+      // Check if Circle already exists
       const circlesRef = collection(db, 'Circles');
-      const q = query(circlesRef, where('circleName', '==', circleName), where('users', 'array-contains', { userName: user.displayName || user.email, adminStatus: true }));
+      const q = query(
+        circlesRef,
+        where('circleName', '==', circleName),
+        where('users', 'array-contains', {
+          userName: user.displayName || user.email,
+          adminStatus: true,
+        })
+      );
       const querySnapshot = await getDocs(q);
-  
+
       if (!querySnapshot.empty) {
         Alert.alert('A Circle with this name already exists!');
         return;
@@ -32,27 +38,26 @@ export default function MakeCirclePage({ navigation }) {
       const now = new Date();
       const completionTime = Timestamp.fromDate(
         new Date(now.getTime() + Number(duration) * 24 * 60 * 60 * 1000) // duration in days
-        // new Date(now.getTime() + 2 * 60 * 1000) // 2 minute completion time
       );
-  
-      // If no duplicate found, proceed to create the Circle
+
+      // Create Circle
       const circleData = {
         circleName,
         winnerPrize,
         loserChallenge,
         duration: Number(duration),
-        status: "active",
+        status: 'active',
         createdAt: Timestamp.now(),
-        completionTime: completionTime,
+        completionTime,
         users: [
           {
             userName: user.displayName || user.email,
             adminStatus: true,
-            score: 0
+            score: 0,
           },
         ],
       };
-  
+
       await addDoc(circlesRef, circleData);
       Alert.alert('Circle created successfully!');
       navigation.navigate('AddMembers', { circleName });
@@ -62,38 +67,97 @@ export default function MakeCirclePage({ navigation }) {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <TextInput
-        placeholder="Circle Name"
-        value={circleName}
-        onChangeText={setCircleName}
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
-      />
-      <TextInput
-        placeholder="Winner Prize"
-        value={winnerPrize}
-        onChangeText={setWinnerPrize}
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
-      />
-      <TextInput
-        placeholder="Loser Challenge"
-        value={loserChallenge}
-        onChangeText={setLoserChallenge}
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
-      />
-      <TextInput
-        placeholder="Duration (in days)"
-        value={duration}
-        onChangeText={(value) => setDuration(value.replace(/[^0-9]/g, ''))}
-        keyboardType="numeric"
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 8 }}
-      />
-      <Button
-        title="Create Circle"
-        onPress={handleCreateCircle}
-        disabled={!circleName || !winnerPrize || !loserChallenge || !duration} // Disable if any field is empty
-        style={{ marginTop: 10 }}
-      />
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Name your Circle</Text>
+        <TextInput
+          placeholder="Enter Circle Name"
+          value={circleName}
+          onChangeText={setCircleName}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Winner Prize"
+          value={winnerPrize}
+          onChangeText={setWinnerPrize}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Loser Challenge"
+          value={loserChallenge}
+          onChangeText={setLoserChallenge}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Duration (in days)"
+          value={duration}
+          onChangeText={(value) => setDuration(value.replace(/[^0-9]/g, ''))}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+        <TouchableOpacity
+          style={[styles.button, circleName && winnerPrize && loserChallenge && duration ? styles.buttonActive : styles.buttonDisabled]}
+          onPress={handleCreateCircle}
+          disabled={!circleName || !winnerPrize || !loserChallenge || !duration}
+        >
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#C4DDEB',
+
+  },
+  card: {
+    width: '85%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    height: 50,
+    // borderColor: '#CCC',
+    backgroundColor: "#F9FCFF",
+    // borderWidth: 1,
+    borderRadius: 10,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  button: {
+    height: 50,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonActive: {
+    backgroundColor: '#95C0D7',
+  },
+  buttonDisabled: {
+    backgroundColor: '#D3D3D3',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFF',
+  },
+});
+
+export default MakeCirclePage;
