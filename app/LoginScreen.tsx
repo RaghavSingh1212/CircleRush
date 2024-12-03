@@ -106,14 +106,14 @@ const styles = StyleSheet.create({
         width: 455,
         height: 856,
         position: 'absolute',
-        top: 0,
+        top: 50, // Adjust this value to move the content down
         left: 0,
         opacity: 1,
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        borderColor: '#000',
-        borderWidth: 1,
+        // borderColor: '#000',
+        // borderWidth: 1,
         borderRadius: 4,
     },
     largeCircleContainer: {

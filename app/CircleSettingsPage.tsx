@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
   deleteButton: {
     marginTop: 10,
     paddingVertical: 10,
-    backgroundColor: "#FF4136",
-    borderRadius: 8,
+    backgroundColor: "#FF6B6B",
+    borderRadius: 25,
     alignItems: "center",
   },
   deleteButtonText: {
@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
   inviteButton: {
     marginTop: 20,
     paddingVertical: 10,
-    backgroundColor: "#007BFF",
-    borderRadius: 8,
+    backgroundColor: "#4A90E2",
+    borderRadius: 25,
     alignItems: "center",
   },
   inviteButtonText: {

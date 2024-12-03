@@ -148,7 +148,7 @@ export default function MakeCirclePage({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 1, padding: 20, },
   header: { fontSize: 24, marginBottom: 20, textAlign: "center" },
   list: { alignItems: "center" },
   circleContainer: { margin: 10, alignItems: "center" },
