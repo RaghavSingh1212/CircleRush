@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "CircleRush",
+    "displayName": "CircleRush",
     "slug": "CircleRush",
     "version": "1.0.0",
     "orientation": "portrait",
