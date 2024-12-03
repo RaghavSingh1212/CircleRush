@@ -66,6 +66,11 @@ export default function SignupScreen() {
           <TouchableOpacity style={styles.createButton} onPress={handleSignup}>
                     <Text style={styles.createButtonText}>Create Account</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('LoginScreen')}>
+            <Image
+              source={require('../assets/images/backarrow.png')} // Replace with your image file path
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -117,7 +122,7 @@ rectTextLarge: {
   fontSize: 40,
   fontWeight: 'medium',
   alignItems: 'center',
-  top: 200,
+  top: 230,
   //left: 160,
 },
 
@@ -184,7 +189,17 @@ createButton: {
 createButtonText: {
   color: '#FFFFFF',
   fontSize: 16,
-}
+}, 
+
+buttonContainer: {
+  position: 'absolute',
+  top: -100,
+  left: 0,
+  width: 100,
+  height: 100,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
 });
 
 //export default SignupScreen;
