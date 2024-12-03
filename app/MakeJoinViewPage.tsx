@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 210,
-    left: 65,
+    top: 190,
+    left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
@@ -80,8 +80,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 350,
-    left: 65,
+    top: 330,
+    left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 490,
-    left: 65,
+    top: 470,
+    left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
 
   pencilContainer: {
     position: 'absolute',
-    top: 155,
-    left: 190,
+    top: 135,
+    left: 170,
     width: 45,
     height: 45,
     alignItems: 'center',
@@ -134,8 +134,8 @@ const styles = StyleSheet.create({
 
   peopleContainer: {
     position: 'absolute',
-    top: 300,
-    left: 190,
+    top: 280,
+    left: 170,
     width: 45,
     height: 45,
     alignItems: 'center',
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
 
   listtContainer: {
     position: 'absolute',
-    top: 440,
-    left: 190,
+    top: 420,
+    left: 170,
     width: 45,
     height: 45,
     alignItems: 'center',

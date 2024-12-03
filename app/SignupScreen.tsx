@@ -42,7 +42,7 @@ export default function SignupScreen() {
               source={require('../assets/images/Rectangle1.png')}
               style={styles.Rectangle1}
           />
-          <View style={[styles.inputContainer, {top: 110}]}>
+          <View style={[styles.inputContainer, {top: 120}]}>
               <Text style={styles.label}>Email</Text>
               <TextInput
                   style={styles.inputEmail}
@@ -52,7 +52,7 @@ export default function SignupScreen() {
                   onChangeText={setEmail}
               />
           </View>
-          <View style={[styles.inputContainer, {top: 180}]}>
+          <View style={[styles.inputContainer, {top: 190}]}>
               <Text style={styles.label}>Password</Text>
               <TextInput
                   style={styles.inputPassword}
@@ -97,9 +97,9 @@ const styles = StyleSheet.create({
 
 Rectangle2Container: {
   position: 'absolute',
-  top: -50,
+  top: -100,
   left: 0,
-  width: 430,
+  width: 395,
   height: 414,
   alignItems: 'center',
   justifyContent: 'center',
@@ -123,16 +123,16 @@ rectTextLarge: {
 
 Rectangle1Container: {
   position: 'absolute',
-  top: 200,
-  left: 35,
-  width: 360,
-  height: 414,
+  top: 130,
+  left: 7,
+  width: 380,
+  height: 434,
   alignItems: 'center',
   justifyContent: 'center',
 },
 
 Rectangle1: {
-  width: '100%',
+  width: '90%',
   height: '100%',
   resizeMode: 'contain',
 },
@@ -140,7 +140,7 @@ Rectangle1: {
 inputContainer: {
   position: 'absolute',
   width: 300,
-  left: 30,
+  left: 40,
 },
 
 label: {
@@ -172,8 +172,8 @@ createButton: {
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: 15,
-  top: 260,
-  left: 30,
+  top: 270,
+  left: 40,
   elevation: 4, // Shadow for Android
   shadowColor: '#000', // Shadow for iOS
   shadowOffset: { width: 0, height: 2 },

@@ -62,7 +62,7 @@ export default function LoginScreen() {
                         <Text style={styles.buttonText}>Sign in with Google</Text>
                     </View>
                 </TouchableOpacity>
-                <View style={[styles.inputContainer, {top: 590}]}>
+                <View style={[styles.inputContainer, {top: 490}]}>
                     <Text style={styles.label}>Email</Text>
                     <TextInput
                         style={styles.inputEmail}
@@ -72,7 +72,7 @@ export default function LoginScreen() {
                         onChangeText={setEmail}
                     />
                 </View>
-                <View style={[styles.inputContainer, {top: 660}]}>
+                <View style={[styles.inputContainer, {top: 560}]}>
                     <Text style={styles.label}>Password</Text>
                     <TextInput
                         style={styles.inputPassword}
@@ -118,10 +118,10 @@ const styles = StyleSheet.create({
     },
     largeCircleContainer: {
         position: 'absolute',
-        top: 100,
+        top: 50,
         left: 80,
-        width: 400,
-        height: 400,
+        width: 350,
+        height: 350,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -132,10 +132,10 @@ const styles = StyleSheet.create({
     },
     smallCircleContainer: {
         position: 'absolute',
-        top: 50,
+        top: 10,
         left: 20,
-        width: 260,
-        height: 260,
+        width: 230,
+        height: 230,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -147,15 +147,15 @@ const styles = StyleSheet.create({
     circleTextLarge: {
         position: 'absolute',
         color: '#FFFFFF',
-        fontSize: 55,
+        fontSize: 45,
         fontWeight: 'bold',
-        top: 220,
-        left: 150,
+        top: 200,
+        left: 140,
     },
     circleTextSmall: {
         position: 'absolute',
         color: '#FFFFFF',
-        fontSize: 55,
+        fontSize: 45,
         fontWeight: 'bold',
     },
     googleButton: {
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
         borderRadius: 9999,
         justifyContent: 'center',
         alignItems: 'center',
-        top: 525,
-        left: 65,
+        top: 420,
+        left: 45,
         borderWidth: 2,
         borderColor: '#E2E8F0',
     },
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 300,
         //height: 50,
-        left: 65,
+        left: 45,
     },
     label: {
         color: '#000',
@@ -216,8 +216,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
-        top: 735,
-        left: 65,
+        top: 640,
+        left: 45,
         elevation: 4, // Shadow for Android
         shadowColor: '#000', // Shadow for iOS
         shadowOffset: { width: 0, height: 2 },
@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     },
     signupText: {
         position: 'absolute',
-        top: 790,
-        left: 90,
+        top: 700,
+        left: 65,
         fontSize: 16,
         color: '#000',
     },
