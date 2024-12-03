@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Button, Image, Alert } from 'react-native';
 
 export default function MakeJoinViewPage({ navigation }) {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
 
