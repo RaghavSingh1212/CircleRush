@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 100, // Added padding to push the entire page down
-    backgroundColor: '#C4DDEB66',
+    // backgroundColor: '#C4DDEB66',
 
   },
   header: {
