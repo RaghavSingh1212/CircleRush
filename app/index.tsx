@@ -9,7 +9,7 @@ import MakeCirclePage from "./MakeCirclePage";
 import AddTaskPage from "./AddTaskPage";
 import AddMembersPage from "./AddMembersPage";
 import CircleSettingsPage from "./CircleSettingsPage";
-//import { TouchableOpacity, Text, StatusBar } from "react-native";
+import { TouchableOpacity, Text, StatusBar } from "react-native";
 
 const Stack = createStackNavigator();
 
