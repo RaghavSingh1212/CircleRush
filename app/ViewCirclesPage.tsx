@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, Image, ImageBackground, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StyleSheet } from 'react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -12,8 +12,8 @@ export default function ViewCirclesPage() {
     const user = auth.currentUser;
     if (!user) return;
 
-    const circlesRef = collection(db, "Circles");
-    const q = query(circlesRef); // Fetch all circles
+    const circlesRef = collection(db, 'Circles');
+    const q = query(circlesRef);
 
     const querySnapshot = await getDocs(q);
     const circlesData = querySnapshot.docs
@@ -32,7 +32,6 @@ export default function ViewCirclesPage() {
   );
 
   const renderCircle = ({ item, index }) => {
-    // Dynamically set image and background color based on index
     const imageNames = [
       require('../assets/images/color1.png'),
       require('../assets/images/color2.png'),
@@ -43,7 +42,7 @@ export default function ViewCirclesPage() {
       require('../assets/images/color7.png'),
       require('../assets/images/color8.png'),
       require('../assets/images/color9.png'),
-      require('../assets/images/color10.png')
+      require('../assets/images/color10.png'),
     ];
     const imageName = imageNames[item.colorCode % imageNames.length];
 
@@ -65,54 +64,54 @@ export default function ViewCirclesPage() {
       <FlatList
         data={circles}
         renderItem={renderCircle}
-        keyExtractor={item => item.id}
-        // numColumns={1}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
-        <Image
-          source={require('../assets/images/backarrow.png')} // Replace with your image file path
-        />
+        <Image source={require('../assets/images/backarrow.png')} />
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  header: { fontSize: 24, marginBottom: 20, top: 90, textAlign: 'center' },
-  list: { alignItems: 'center' },
-  circleContainer: {
-    margin: 10,
-    top: 100,
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 100, // Added padding to push the entire page down
+    backgroundColor: '#C4DDEB66',
+
+  },
+  header: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  list: {
     alignItems: 'center',
-    padding: 0,
-    borderRadius: 10,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    paddingTop: 10,
+  },
+  circleContainer: {
+    marginVertical: 10,
+    alignItems: 'center',
+    width: '100%',
   },
   circleIcon: {
     width: 315,
     height: 55,
     borderRadius: 10,
-    justifyContent: 'center', // Centers the text vertically
-    //alignItems: 'left',     // Centers the text horizontally
+    justifyContent: 'center',
     paddingLeft: 70,
-    paddingBottom: 7,
   },
-  circleText: { 
-    fontSize: 18, 
-    //fontWeight: 'bold',
+  circleText: {
+    fontSize: 18,
   },
-
   buttonContainer: {
     position: 'absolute',
-    top: 30,
-    left: 10,
-    width: 100,
-    height: 100,
+    top: 55,
+    left: 25,
+    width: 50,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },

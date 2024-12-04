@@ -210,7 +210,7 @@ export default function CircleDetailsPage({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "white" },
+  container: { flex: 1, padding: 20, backgroundColor: 'white'},
   header: {
     fontSize: 28,
     fontWeight: "bold",
