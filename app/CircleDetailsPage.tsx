@@ -4,17 +4,14 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Button,
   Alert,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import {
   doc,
   collection,
   getDoc,
   getDocs,
-  deleteDoc,
   updateDoc,
 } from "firebase/firestore";
 import { db, auth, functions } from "@/firebase";
@@ -26,7 +23,6 @@ export default function CircleDetailsPage({ route, navigation }) {
   const [circleData, setCircleData] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
   const user = auth.currentUser;
 
   const fetchCircleData = useCallback(async () => {
@@ -36,8 +32,6 @@ export default function CircleDetailsPage({ route, navigation }) {
     if (docSnap.exists()) {
       const data = docSnap.data();
       setCircleData(data);
-
-      setIsCompleted(data?.status === "completed");
 
       const userEntry = data.users.find(
         (u) => u.userName === (user?.displayName || user?.email)
@@ -79,10 +73,8 @@ export default function CircleDetailsPage({ route, navigation }) {
       return;
     }
 
-    // Update task to mark as completed
     await updateDoc(taskRef, { completed: true, completedAt: new Date() });
 
-    // Update user score locally and in Firestore
     const updatedUsers = circleData.users.map((u) => {
       if (u.userName === (user?.displayName || user?.email)) {
         return { ...u, score: (u.score || 0) + task.points };
@@ -106,17 +98,10 @@ export default function CircleDetailsPage({ route, navigation }) {
       functions,
       "notifyOnTaskCompletion"
     );
-    const response = await notifyOnTaskCompletion({
+    await notifyOnTaskCompletion({
       circleData: circleData,
       taskData: task,
     });
-    // const response = await sendMail({
-    //   recipientEmail: user?.email,
-    //   subject: `Task ${task.taskName} has been completed!`,
-    //   text: `Congrats on completing ${task.taskName}! You have earned ${task.points} for the circle ${circleData.circleName}!`,
-    //   html: null
-    // });
-    // console.log(response.data.message);
 
     Alert.alert("Task marked as completed!");
   };
@@ -145,16 +130,36 @@ export default function CircleDetailsPage({ route, navigation }) {
       <Text style={styles.subHeader}>Users</Text>
       <FlatList
         data={sortedUsers}
-        renderItem={({ item }) => (
-          <View style={styles.userContainer}>
-            <Text style={styles.userName}>{item.userName}</Text>
-            <Text style={styles.userScore}>Score: {item.score || 0}</Text>
-          </View>
-        )}
+        contentContainerStyle={styles.userListContainer} // Adjust container style for the list
+        renderItem={({ item, index }) => {
+          let backgroundColor;
+
+          // Set background color based on rank
+          if (index === 0) {
+            backgroundColor = "#FFA6A6"; // Light Red for 1st
+          } else if (index === 1) {
+            backgroundColor = "#FFD9B3"; // Light Orange for 2nd
+          } else if (index === 2) {
+            backgroundColor = "#FFF5B3"; // Light Yellow for 3rd
+          } else {
+            backgroundColor = "#E4F2F8"; // Light Blue for others
+          }
+
+          return (
+            <View style={[styles.userContainer, { backgroundColor }]}>
+              <Text style={styles.userName}>{item.userName}</Text>
+              <Text style={styles.userScore}>Score: {item.score || 0}</Text>
+            </View>
+          );
+        }}
         keyExtractor={(item) => item.userName}
+        // numColumns={2} // Ensures one user per row
+        style={styles.userList}
       />
 
-      <Text style={styles.subHeader}>Tasks</Text>
+
+
+      <Text style={styles.taskHeader}>Tasks</Text>
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
@@ -205,39 +210,59 @@ export default function CircleDetailsPage({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f3f4f6" },
+  container: { flex: 1, padding: 20, backgroundColor: "white" },
   header: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 10,
+    marginBottom: 5,
     textAlign: "center",
   },
   infoBox: {
-    backgroundColor: "#e0e4e8",
+    backgroundColor: "#CDE4EE",
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
+    
   },
   infoText: {
     fontSize: 16,
     color: "#555",
     marginBottom: 5,
+    fontWeight: 'bold',
   },
   subHeader: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#333",
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 10,
+  },
+  taskHeader: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  userList: {
+    height: 350, // Adjust the height to fit exactly 4 rows
+    marginBottom: 10,
+    width: "100%",
+  },
+  userListContainer: {
+    flexGrow: 1, // Ensures the list container expands properly
+    paddingHorizontal: 15, // Add padding for better alignment
+    width: "100%", // Makes the list container take the full screen width
   },
   userContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: "#ffffff",
-    marginBottom: 5,
+    alignItems: "center",
+    padding: 15,
     borderRadius: 8,
+    marginBottom: 8,
+    width: "100%",
   },
   userName: {
     fontSize: 16,
@@ -250,9 +275,9 @@ const styles = StyleSheet.create({
   },
   taskContainer: {
     padding: 15,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#E4F2F8",
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   completedTask: {
     backgroundColor: "#d3eedd",
@@ -275,8 +300,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 15,
-    backgroundColor: "#4CAF50",
-    borderRadius: 5,
+    backgroundColor: "#429A46",
+    borderRadius: 15,
     alignItems: "center",
   },
   completeButtonText: {
@@ -286,23 +311,11 @@ const styles = StyleSheet.create({
   addButton: {
     marginTop: 20,
     paddingVertical: 10,
-    backgroundColor: "#007BFF",
-    borderRadius: 8,
+    backgroundColor: "#95C0D7",
+    borderRadius: 25,
     alignItems: "center",
   },
   addButtonText: {
-    color: "#ffffff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  deleteButton: {
-    marginTop: 10,
-    paddingVertical: 10,
-    backgroundColor: "#FF4136",
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  deleteButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
     fontSize: 16,

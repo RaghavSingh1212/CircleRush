@@ -250,16 +250,16 @@ export default function CircleSettingsPage({ route, navigation }) {
             <View style={styles.userContainer}>
               <Text style={styles.userName}>{item.userName}</Text>
               {isAdmin && (
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteUser(item.userName)}
-                >
-                  <Text style={styles.deleteButtonText}>  remove  </Text>
+                <TouchableOpacity onPress={() => handleDeleteUser(item.userName)}>
+                  <Text style={styles.removeText}>Remove</Text>
                 </TouchableOpacity>
               )}
             </View>
           )}
+          style={styles.userList}
         />
+
+
       </View>
 
       {isAdmin && (
@@ -349,6 +349,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
   },
+  removeText: {
+    fontSize: 16,
+    color: "#FF6B6B", // Red color for "Remove" text
+    fontWeight: "bold",
+    // textDecorationLine: "underline", // Optional: to give it a link-like look
+  },
   deleteButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
@@ -374,6 +380,11 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: "#555",
+  },
+  userList: {
+    maxHeight: 80, // Limit the height of the list to show 1.5 rows
+    width: "100%", // Make the list take up the full width
+    marginBottom: 20, // Add spacing below the list
   },
   userContainer: {
     flexDirection: "row",
