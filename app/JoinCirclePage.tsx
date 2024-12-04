@@ -36,7 +36,7 @@ export default function MakeCirclePage() {
       const userData = {
         userName: user.displayName || user.email,
         adminStatus: false, // Set admin status as needed
-        score: 0
+        score: 0,
       };
 
       console.log(circleId);
@@ -62,39 +62,54 @@ export default function MakeCirclePage() {
     }
 
     try {
-      const circlesRef = collection(db, "Circles");
-
-      // Check if the circle exists at all
-      const q = query(circlesRef, where("circleName", "==", circleName));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        Alert.alert("No Circle with this name exists!");
+      const user = auth.currentUser;
+      if (!user) {
+        Alert.alert("User not authenticated!");
         return;
       }
 
-      // Query Firestore to check if a Circle with the same name already exists for the user
+      const userData = {
+        userName: user.displayName || user.email,
+        adminStatus: false, // Adjust as needed
+        score: 0, // Initialize user score
+      };
+
+      const circlesRef = collection(db, "Circles");
+      const q = query(circlesRef, where("circleName", "==", circleName));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Alert.alert("Error", "No Circle with this name exists!");
+        return;
+      }
+
       const circleDoc = querySnapshot.docs[0]; // Assuming circle names are unique
       const circleData = circleDoc.data();
 
-      // Check if the user exists in the 'users' array
-      const user = auth.currentUser;
-      const userInCircle = circleData.users.some(
+      const userExists = circleData.users?.some(
         (u) => u.userName === (user.displayName || user.email)
       );
 
-      if (userInCircle) {
-        Alert.alert("You are already a part of this circle!");
+      if (userExists) {
+        Alert.alert(
+          "Validation Error",
+          "You are already a part of this circle!"
+        );
         return;
       }
 
-      // Fetch and display circle data if it exists
-      const circlesData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      console.log("Fetched circles data:", circlesData);
+      const circleRef = doc(db, "Circles", circleDoc.id);
 
-      setCircles(circlesData); // Update circles state to display in FlatList
+      await updateDoc(circleRef, {
+        users: arrayUnion(userData),
+      });
+
+      setCircles((prevCircles) => [
+        ...prevCircles,
+        { id: circleDoc.id, ...circleData },
+      ]);
+
+      Alert.alert(`You have joined the circle "${circleName}"!`);
     } catch (error) {
       Alert.alert("Error joining Circle", error.message);
     }
@@ -115,7 +130,6 @@ export default function MakeCirclePage() {
   );
 
   return (
-
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Join a Circle</Text>
@@ -126,7 +140,10 @@ export default function MakeCirclePage() {
           style={styles.input}
         />
         <TouchableOpacity
-          style={[styles.button, circleName ? styles.buttonActive : styles.buttonDisabled]}
+          style={[
+            styles.button,
+            circleName ? styles.buttonActive : styles.buttonDisabled,
+          ]}
           onPress={handleJoinCircle}
           disabled={!circleName}
         >
@@ -141,13 +158,15 @@ export default function MakeCirclePage() {
           extraData={circles}
         />
       </View>
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
-            <Image
-              source={require('../assets/images/backarrow.png')} // Replace with your image file path
-            />
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={() => navigation.navigate("MakeJoinViewPage")}
+      >
+        <Image
+          source={require("../assets/images/backarrow.png")} // Replace with your image file path
+        />
       </TouchableOpacity>
     </View>
-
   );
 }
 
@@ -161,19 +180,18 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#C4DDEB',
-
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#C4DDEB",
   },
   card: {
-    width: '85%',
-    height: '25%',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    width: "85%",
+    height: "25%",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -182,14 +200,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    fontWeight: '400',
+    fontWeight: "400",
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 40,
     // borderColor: '#CCC',
-    backgroundColor: '#C4DDEB4D',
+    backgroundColor: "#C4DDEB4D",
     // borderWidth: 1,
     borderRadius: 10,
     marginBottom: 25,
@@ -198,33 +216,33 @@ const styles = StyleSheet.create({
   button: {
     height: 45,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 4, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    shadowColor: "#000", // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   buttonActive: {
-    backgroundColor: '#95C0D7',
+    backgroundColor: "#95C0D7",
   },
   buttonDisabled: {
-    backgroundColor: '#D3D3D3',
+    backgroundColor: "#D3D3D3",
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FFF',
+    fontWeight: "600",
+    color: "#FFF",
   },
 
   buttonContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     left: 10,
     width: 100,
     height: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
