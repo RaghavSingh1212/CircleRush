@@ -40,6 +40,7 @@ export default function App() {
         name="ViewCirclesPage"
         component={ViewCirclesPage}
         options={{ title: "My Circles" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="CircleDetailsPage"

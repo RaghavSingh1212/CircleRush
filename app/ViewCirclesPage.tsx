@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, TouchableOpacity, Image, ImageBackground, StyleSheet } from 'react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -34,20 +34,27 @@ export default function ViewCirclesPage() {
   const renderCircle = ({ item, index }) => {
     // Dynamically set image and background color based on index
     const imageNames = [
-      require('../assets/images/vector-1.png'),
-      require('../assets/images/vector-2.png'),
-      require('../assets/images/vector-3.png'),
-      require('../assets/images/vector-4.png')
+      require('../assets/images/color1.png'),
+      require('../assets/images/color2.png'),
+      require('../assets/images/color3.png'),
+      require('../assets/images/color4.png'),
+      require('../assets/images/color5.png'),
+      require('../assets/images/color6.png'),
+      require('../assets/images/color7.png'),
+      require('../assets/images/color8.png'),
+      require('../assets/images/color9.png'),
+      require('../assets/images/color10.png')
     ];
-    const imageName = imageNames[index % imageNames.length];
+    const imageName = imageNames[item.colorCode % imageNames.length];
 
     return (
       <TouchableOpacity
         style={styles.circleContainer}
         onPress={() => navigation.navigate('CircleDetailsPage', { circleId: item.id, circleName: item.circleName })}
       >
-        <Image source={imageName} style={styles.circleIcon} />
-        <Text style={styles.circleText}>{item.circleName}</Text>
+        <ImageBackground source={imageName} style={styles.circleIcon} imageStyle={{ borderRadius: 10 }}>
+          <Text style={styles.circleText}>{item.circleName}</Text>
+        </ImageBackground>
       </TouchableOpacity>
     );
   };
@@ -62,18 +69,24 @@ export default function ViewCirclesPage() {
         // numColumns={1}
         contentContainerStyle={styles.list}
       />
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
+        <Image
+          source={require('../assets/images/backarrow.png')} // Replace with your image file path
+        />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  header: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
+  header: { fontSize: 24, marginBottom: 20, top: 90, textAlign: 'center' },
   list: { alignItems: 'center' },
   circleContainer: {
     margin: 10,
+    top: 100,
     alignItems: 'center',
-    padding: 15,
+    padding: 0,
     borderRadius: 10,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -81,9 +94,26 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   circleIcon: {
-    width: 350,
-    height: 62,
+    width: 315,
+    height: 55,
     borderRadius: 10,
+    justifyContent: 'center', // Centers the text vertically
+    //alignItems: 'left',     // Centers the text horizontally
+    paddingLeft: 70,
+    paddingBottom: 7,
   },
-  circleText: { fontSize: 16, },
+  circleText: { 
+    fontSize: 18, 
+    //fontWeight: 'bold',
+  },
+
+  buttonContainer: {
+    position: 'absolute',
+    top: 30,
+    left: 10,
+    width: 100,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

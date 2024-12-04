@@ -42,6 +42,9 @@ const MakeCirclePage = () => {
         new Date(now.getTime() + Number(duration) * 24 * 60 * 60 * 1000) // duration in days
       );
 
+      // Generate a random number (e.g., between 100000 and 999999)
+      const randomNumber = Math.floor(Math.random() * 900000) + 100000;
+
       // Create Circle
       const circleData = {
         circleName,
@@ -51,6 +54,7 @@ const MakeCirclePage = () => {
         status: 'active',
         createdAt: Timestamp.now(),
         completionTime,
+        colorCode: randomNumber, // Add the random number as color code
         users: [
           {
             userName: user.displayName || user.email,
