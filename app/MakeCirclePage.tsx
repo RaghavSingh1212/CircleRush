@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { db, auth } from '@/firebase';
 import { query, collection, where, getDocs, addDoc, Timestamp } from 'firebase/firestore';
+import { useNavigation } from "@react-navigation/native";
 
-const MakeCirclePage = ({ navigation }) => {
+const MakeCirclePage = () => {
   const [circleName, setCircleName] = useState('');
   const [winnerPrize, setWinnerPrize] = useState('');
   const [loserChallenge, setLoserChallenge] = useState('');
   const [duration, setDuration] = useState('');
+  const navigation = useNavigation();
 
   const handleCreateCircle = async () => {
     if (!circleName || !winnerPrize || !loserChallenge || !duration) {
@@ -69,7 +71,7 @@ const MakeCirclePage = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Name your Circle</Text>
+        <Text style={styles.title}>Circle Info</Text>
         <TextInput
           placeholder="Enter Circle Name"
           value={circleName}
@@ -103,6 +105,11 @@ const MakeCirclePage = ({ navigation }) => {
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
+            <Image
+              source={require('../assets/images/backarrow.png')} // Replace with your image file path
+            />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -117,6 +124,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '85%',
+    height: '48%',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
@@ -125,27 +134,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 10,
+    top: 0,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: '400',
+    marginBottom: 30,
     textAlign: 'center',
   },
   input: {
-    height: 50,
+    height: 40,
     // borderColor: '#CCC',
-    backgroundColor: "#F9FCFF",
+    backgroundColor: '#C4DDEB4D',
     // borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 15,
+    marginBottom: 25,
     paddingHorizontal: 15,
   },
   button: {
-    height: 50,
+    height: 45,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 4, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   buttonActive: {
     backgroundColor: '#95C0D7',
@@ -157,6 +172,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFF',
+  },
+
+  buttonContainer: {
+    position: 'absolute',
+    top: 30,
+    left: 10,
+    width: 100,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -9,7 +9,7 @@ import MakeCirclePage from "./MakeCirclePage";
 import AddTaskPage from "./AddTaskPage";
 import AddMembersPage from "./AddMembersPage";
 import CircleSettingsPage from "./CircleSettingsPage";
-import { TouchableOpacity, Text, StatusBar } from "react-native";
+//import { TouchableOpacity, Text, StatusBar } from "react-native";
 
 const Stack = createStackNavigator();
 
@@ -27,12 +27,14 @@ export default function App() {
         name="MakeJoinViewPage"
         component={MakeJoinViewPage}
         options={{ title: "Make or Join a Circle" }}
+        options={{ headerShown: false }}
       />
       {/* Make_1 Page */}
       <Stack.Screen
         name="MakeCirclePage"
         component={MakeCirclePage}
         options={{ title: "Make a Circle" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ViewCirclesPage"

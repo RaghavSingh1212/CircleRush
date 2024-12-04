@@ -62,7 +62,7 @@ export default function LoginScreen() {
                         <Text style={styles.buttonText}>Sign in with Google</Text>
                     </View>
                 </TouchableOpacity>
-                <View style={[styles.inputContainer, {top: 490}]}>
+                <View style={[styles.inputContainer, {top: 500}]}>
                     <Text style={styles.label}>Email</Text>
                     <TextInput
                         style={styles.inputEmail}
@@ -72,7 +72,7 @@ export default function LoginScreen() {
                         onChangeText={setEmail}
                     />
                 </View>
-                <View style={[styles.inputContainer, {top: 560}]}>
+                <View style={[styles.inputContainer, {top: 570}]}>
                     <Text style={styles.label}>Password</Text>
                     <TextInput
                         style={styles.inputPassword}
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
         borderRadius: 9999,
         justifyContent: 'center',
         alignItems: 'center',
-        top: 420,
+        top: 430,
         left: 45,
         borderWidth: 2,
         borderColor: '#E2E8F0',
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
-        top: 640,
+        top: 650,
         left: 45,
         elevation: 4, // Shadow for Android
         shadowColor: '#000', // Shadow for iOS
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     },
     signupText: {
         position: 'absolute',
-        top: 700,
+        top: 710,
         left: 65,
         fontSize: 16,
         color: '#000',

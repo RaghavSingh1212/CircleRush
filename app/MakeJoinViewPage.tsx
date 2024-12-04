@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Button, Image, Alert } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
-export default function MakeJoinViewPage({ navigation }) {
+export default function MakeJoinViewPage() {
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 190,
+    top: 280,
     left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 330,
+    top: 430,
     left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    top: 470,
+    top: 570,
     left: 45,
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
 
   pencilContainer: {
     position: 'absolute',
-    top: 135,
+    top: 225,
     left: 170,
     width: 45,
     height: 45,
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
 
   peopleContainer: {
     position: 'absolute',
-    top: 280,
+    top: 380,
     left: 170,
     width: 45,
     height: 45,
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
 
   listtContainer: {
     position: 'absolute',
-    top: 420,
+    top: 520,
     left: 170,
     width: 45,
     height: 45,
