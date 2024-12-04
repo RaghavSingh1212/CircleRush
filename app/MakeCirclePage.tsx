@@ -43,7 +43,15 @@ const MakeCirclePage = () => {
       );
 
       // Generate a random number (e.g., between 100000 and 999999)
-      const randomNumber = Math.floor(Math.random() * 900000) + 100000;
+      //const randomNumber = Math.floor(Math.random() * 900000) + 100000;
+
+      // Generate random RGB values in the pastel range (200–225)
+      const r = Math.floor(Math.random() * 26) + 200; // Red component
+      const g = Math.floor(Math.random() * 26) + 200; // Green component
+      const b = Math.floor(Math.random() * 26) + 200; // Blue component
+
+      // Convert RGB to Hex
+      const randomColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
       // Create Circle
       const circleData = {
@@ -54,7 +62,7 @@ const MakeCirclePage = () => {
         status: 'active',
         createdAt: Timestamp.now(),
         completionTime,
-        colorCode: randomNumber, // Add the random number as color code
+        colorCode: randomColor, // Add the random number as color code
         users: [
           {
             userName: user.displayName || user.email,

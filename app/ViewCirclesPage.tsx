@@ -32,6 +32,7 @@ export default function ViewCirclesPage() {
   );
 
   const renderCircle = ({ item, index }) => {
+    /*
     const imageNames = [
       require('../assets/images/color1.png'),
       require('../assets/images/color2.png'),
@@ -44,16 +45,20 @@ export default function ViewCirclesPage() {
       require('../assets/images/color9.png'),
       require('../assets/images/color10.png'),
     ];
-    const imageName = imageNames[item.colorCode % imageNames.length];
+    */
+    //const imageName = imageNames[item.colorCode % imageNames.length];
+
+    const circColor = item.colorCode;
 
     return (
       <TouchableOpacity
         style={styles.circleContainer}
         onPress={() => navigation.navigate('CircleDetailsPage', { circleId: item.id, circleName: item.circleName })}
       >
-        <ImageBackground source={imageName} style={styles.circleIcon} imageStyle={{ borderRadius: 10 }}>
+        <View style={[styles.rectangle, { backgroundColor: `${circColor}80` }]}>
+          <View style={[styles.circleInsideRectangle, {backgroundColor: circColor}]} />
           <Text style={styles.circleText}>{item.circleName}</Text>
-        </ImageBackground>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -92,10 +97,29 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   circleContainer: {
-    marginVertical: 10,
+    marginVertical: 0,
     alignItems: 'center',
     width: '100%',
   },
+  rectangle: {
+    width: 300,
+    height: 50,
+    //opacity: 0.5,
+    //backgroundColor: circColor, // Light blue
+    alignSelf: 'center',
+    borderRadius: 10,
+    marginBottom: 20,
+    flexDirection: 'row', // Horizontal layout
+    alignItems: 'center', // Center vertically
+    paddingHorizontal: 15, // Add padding inside the rectangle
+  },
+
+  circleInsideRectangle: {
+    width: 30, // Diameter of the circle
+    height: 30, // Diameter of the circle
+    borderRadius: 15, // Half of the width/height for a perfect circle
+  },
+
   circleIcon: {
     width: 315,
     height: 55,
@@ -105,6 +129,7 @@ const styles = StyleSheet.create({
   },
   circleText: {
     fontSize: 18,
+    marginLeft: 10, // Space between the circle and text
   },
   buttonContainer: {
     position: 'absolute',
