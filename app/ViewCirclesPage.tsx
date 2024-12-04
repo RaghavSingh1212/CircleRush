@@ -34,10 +34,10 @@ export default function ViewCirclesPage() {
   const renderCircle = ({ item, index }) => {
     // Dynamically set image and background color based on index
     const imageNames = [
-      require('../assets/images/Vector-1.png'),
-      require('../assets/images/Vector-2.png'),
-      require('../assets/images/Vector-3.png'),
-      require('../assets/images/Vector-4.png')
+      require('../assets/images/vector-1.png'),
+      require('../assets/images/vector-2.png'),
+      require('../assets/images/vector-3.png'),
+      require('../assets/images/vector-4.png')
     ];
     const imageName = imageNames[index % imageNames.length];
 
@@ -59,7 +59,7 @@ export default function ViewCirclesPage() {
         data={circles}
         renderItem={renderCircle}
         keyExtractor={item => item.id}
-        numColumns={2}
+        // numColumns={1}
         contentContainerStyle={styles.list}
       />
     </View>
@@ -81,9 +81,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   circleIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: 350,
+    height: 62,
+    borderRadius: 10,
   },
-  circleText: { marginTop: 5, fontSize: 16 },
+  circleText: { fontSize: 16, },
 });
