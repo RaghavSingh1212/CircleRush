@@ -67,7 +67,7 @@ export default function ViewCirclesPage() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
       />
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()}>
         <Image source={require('../assets/images/backarrow.png')} />
       </TouchableOpacity>
     </View>

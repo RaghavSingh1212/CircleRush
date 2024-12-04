@@ -26,34 +26,7 @@ import { useNavigation } from "@react-navigation/native";
 export default function MakeCirclePage() {
   const navigation = useNavigation();
   const [circleName, setCircleName] = useState("");
-  const [circles, setCircles] = useState([]);
 
-  const joinCircle = async (circleId) => {
-    try {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const userData = {
-        userName: user.displayName || user.email,
-        adminStatus: false, // Set admin status as needed
-        score: 0,
-      };
-
-      console.log(circleId);
-
-      // Get a reference to the document
-      const circleRef = doc(db, "Circles", circleId);
-
-      // Update the circle name field in the document
-      await updateDoc(circleRef, {
-        users: arrayUnion(userData),
-      });
-
-      Alert.alert("Joined circle successfully!");
-    } catch (error) {
-      Alert.alert("Error joining circle", error.message);
-    }
-  };
 
   const handleJoinCircle = async () => {
     if (!circleName) {
@@ -91,10 +64,7 @@ export default function MakeCirclePage() {
       );
 
       if (userExists) {
-        Alert.alert(
-          "Validation Error",
-          "You are already a part of this circle!"
-        );
+        Alert.alert("You are already a part of this circle!");
         return;
       }
 
@@ -104,30 +74,11 @@ export default function MakeCirclePage() {
         users: arrayUnion(userData),
       });
 
-      setCircles((prevCircles) => [
-        ...prevCircles,
-        { id: circleDoc.id, ...circleData },
-      ]);
-
       Alert.alert(`You have joined the circle "${circleName}"!`);
     } catch (error) {
       Alert.alert("Error joining Circle", error.message);
     }
   };
-
-  const renderCircle = ({ item }) => (
-    <TouchableOpacity
-      style={styles.circleContainer}
-      onPress={() => joinCircle(item.id)}
-      //   onPress={() => navigation.navigate('CircleDetails', { circleId: item.id })}
-    >
-      <Image
-        source={require("@/assets/images/adaptive-icon.png")}
-        style={styles.circleIcon}
-      />
-      <Text style={styles.circleText}>{item.circleName}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -149,18 +100,10 @@ export default function MakeCirclePage() {
         >
           <Text style={styles.buttonText}>Join</Text>
         </TouchableOpacity>
-        <FlatList
-          data={circles}
-          renderItem={renderCircle}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={styles.list}
-          extraData={circles}
-        />
       </View>
       <TouchableOpacity
         style={styles.buttonContainer}
-        onPress={() => navigation.navigate("MakeJoinViewPage")}
+        onPress={() => navigation.goBack()}
       >
         <Image
           source={require("../assets/images/backarrow.png")} // Replace with your image file path

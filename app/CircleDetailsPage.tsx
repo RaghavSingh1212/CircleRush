@@ -19,6 +19,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { httpsCallable } from "firebase/functions";
 
 export default function CircleDetailsPage({ route, navigation }) {
+  console.log("route", route)
   const { circleId } = route.params;
   const [circleData, setCircleData] = useState(null);
   const [tasks, setTasks] = useState([]);

@@ -109,7 +109,7 @@ const MakeCirclePage = () => {
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('MakeJoinViewPage')}>
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()}>
             <Image
               source={require('../assets/images/backarrow.png')} // Replace with your image file path
             />
