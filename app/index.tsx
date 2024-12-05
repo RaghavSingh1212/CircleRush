@@ -60,6 +60,7 @@ export default function App() {
             </TouchableOpacity>
           ),
         })}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="AddTaskPage"

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   FlatList,
   Alert,
@@ -20,6 +21,25 @@ export default function CircleDetailsPage({ route, navigation }) {
   const [tasks, setTasks] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const user = auth.currentUser;
+
+  // Function to generate a consistent color for each user
+  const generateColor = (identifier) => {
+    let hash = 0;
+
+    for (let i = 0; i < identifier.length; i++) {
+      hash = identifier.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    // Map the hash to the 175-200 range for RGB values
+    const r = (hash % 56) + 150; // Ensure values are between 175–200
+    const g = ((hash >> 8) % 56) + 150; // Use bit-shifting to vary values
+    const b = ((hash >> 16) % 56) + 150;
+
+    // Convert to hex format
+    const toHex = (value) => value.toString(16).padStart(2, "0");
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
 
   const fetchCircleData = useCallback(async () => {
     const docRef = doc(db, "Circles", circleId);
@@ -113,14 +133,7 @@ export default function CircleDetailsPage({ route, navigation }) {
     key: user.userName,
     value: user.score || 0,
     svg: {
-      fill:
-        index === 0
-          ? "#FFA6A6" // Light Red for 1st
-          : index === 1
-          ? "#FFD9B3" // Light Orange for 2nd
-          : index === 2
-          ? "#FFF5B3" // Light Yellow for 3rd
-          : "#E4F2F8", // Light Blue for others
+      fill: generateColor(user.userName), // Use consistent color for PieChart
     },
     arc: { outerRadius: "100%", innerRadius: "0%" },
   }));
@@ -128,9 +141,9 @@ export default function CircleDetailsPage({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{circleData.circleName}</Text>
-      <View style={styles.infoBox}>
+      <View style={[styles.infoBox, { backgroundColor: `${circleData.colorCode}80` }]}>
         <Text style={styles.infoText}>
-          Duration: {circleData.duration} days
+          Duration: {circleData.duration} day(s)
         </Text>
         <Text style={styles.infoText}>
           Winner Prize: {circleData.winnerPrize}
@@ -140,43 +153,34 @@ export default function CircleDetailsPage({ route, navigation }) {
         </Text>
       </View>
 
+      
       {/* Add Pie Chart Section */}
       <Text style={styles.subHeader}>Score Distribution</Text>
       <View style={styles.chartContainer}>
         <PieChart style={styles.pieChart} data={pieData} />
-        <Text style={styles.pieCenterText}>Total</Text>
       </View>
 
       {/* Users List */}
-      <Text style={styles.subHeader}>Users</Text>
+      <Text style={styles.subHeader2}>Users</Text>
       <FlatList
         data={sortedUsers}
         contentContainerStyle={styles.userListContainer}
-        renderItem={({ item, index }) => {
-          let backgroundColor;
-
-          if (index === 0) {
-            backgroundColor = "#FFA6A6";
-          } else if (index === 1) {
-            backgroundColor = "#FFD9B3";
-          } else if (index === 2) {
-            backgroundColor = "#FFF5B3";
-          } else {
-            backgroundColor = "#E4F2F8";
-          }
-
-          return (
-            <View style={[styles.userContainer, { backgroundColor }]}>
-              <Text style={styles.userName}>{item.userName}</Text>
-              <Text style={styles.userScore}>Score: {item.score || 0}</Text>
-            </View>
-          );
-        }}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              styles.userContainer,
+              { backgroundColor: generateColor(item.userName) }, // Use consistent color for user background
+            ]}
+          >
+            <Text style={styles.userName}>{item.userName}</Text>
+            <Text style={styles.userScore}>Score: {item.score || 0}</Text>
+          </View>
+        )}
         keyExtractor={(item) => item.userName}
         style={styles.userList}
       />
 
-      <Text style={styles.taskHeader}>Tasks</Text>
+      <Text style={styles.subHeader3}>Tasks</Text>
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
@@ -216,52 +220,93 @@ export default function CircleDetailsPage({ route, navigation }) {
         keyExtractor={(item) => item.taskId}
       />
 
-      <TouchableOpacity
-        style={styles.addButton}
+      <TouchableOpacity 
+        style={styles.addTaskButton} 
         onPress={() => navigation.navigate("AddTaskPage", { circleId })}
-      >
-        <Text style={styles.addButtonText}>Add Task</Text>
+        >
+          <Text style={styles.addTaskButtonText}>Add Task</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('ViewCirclesPage')}>
+          <Image
+            source={require('../assets/images/backarrow.png')} // Replace with your image file path
+          />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.settingsContainer} onPress={() => navigation.navigate("CircleSettingsPage", { circleId })}>
+          <Image
+            source={require('../assets/images/settings.png')} // Replace with your image file path
+          />
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "white" },
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    marginBottom: 30,
+    backgroundColor: "white" 
+  },
   header: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 10,
+    marginBottom: 40,
     textAlign: "center",
+    top: 70,
   },
   infoBox: {
-    backgroundColor: "#CDE4EE",
-    padding: 15,
+    //backgroundColor: "#CDE4EE",
+    padding: 6,
     borderRadius: 10,
-    marginBottom: 20,
+    marginTop: 40,
+    marginBottom: 0,
+    marginLeft: 5,
+    //top: 70,
+    //left: 27,
+    width: 340,
   },
   infoText: {
-    fontSize: 16,
-    color: "#555",
+    fontSize: 13,
+    color: "#333",
     marginBottom: 5,
-    fontWeight: "bold",
+    fontWeight: "normal",
+    textAlign: "center",
   },
   subHeader: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
+    textAlign: "center",
+    color: "#333",
+    marginTop: 20,
+    marginBottom: 15,
+  },
+  subHeader2: {
+    fontSize: 18,
+    fontWeight: "bold",
+    //textAlign: "center",
+    color: "#333",
+    marginTop: 10,
+    marginBottom: 20,
+    marginLeft: 10,
+  },
+  subHeader3: {
+    fontSize: 18,
+    fontWeight: "bold",
+    //textAlign: "center",
     color: "#333",
     marginTop: 10,
     marginBottom: 10,
+    marginLeft: 10,
   },
   chartContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   pieChart: {
-    height: 200,
-    width: 200,
+    height: 170,
+    width: 170,
   },
   pieCenterText: {
     position: "absolute",
@@ -271,30 +316,31 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   userList: {
-    height: 350,
-    marginBottom: 10,
+    height: 190,
+    marginTop: -10,
+    marginBottom: 0,
     width: "100%",
   },
   userListContainer: {
     flexGrow: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 5,
     width: "100%",
   },
   userContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 15,
+    padding: 8,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 5,
     width: "100%",
   },
   userName: {
-    fontSize: 16,
-    color: "#444",
+    fontSize: 14,
+    color: "#111",
   },
   userScore: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#111",
   },
@@ -302,22 +348,23 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: "#E4F2F8",
     borderRadius: 8,
-    marginBottom: 20,
+    marginBottom: 5,
+    //marginTop: 5,
   },
   completedTask: {
     backgroundColor: "#d3eedd",
   },
   taskName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#222",
   },
   taskDetails: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#666",
   },
   taskStatus: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#333",
   },
@@ -332,6 +379,26 @@ const styles = StyleSheet.create({
   completeButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
+  },
+  addTaskButton: {
+    //position: 'absolute',
+    width: 300,
+    height: 45,
+    backgroundColor: '#95C0D7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15,
+    top: 10,
+    left: 28,
+    elevation: 4, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  addTaskButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
   },
   addButton: {
     marginTop: 20,
@@ -351,5 +418,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: "#555",
+  },
+  buttonContainer: {
+    position: 'absolute',
+    top: 30,
+    left: 0,
+    width: 100,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsContainer: {
+    position: 'absolute',
+    top: 25,
+    left: 285,
+    width: 100,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

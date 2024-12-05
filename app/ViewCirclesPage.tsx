@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 100, // Added padding to push the entire page down
     // backgroundColor: '#C4DDEB66',
-
+    backgroundColor: "white" 
   },
   header: {
     fontSize: 24,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   list: {
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: 10,   
   },
   circleContainer: {
     marginVertical: 0,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   rectangle: {
-    width: 300,
+    width: 350,
     height: 50,
     //opacity: 0.5,
     //backgroundColor: circColor, // Light blue
