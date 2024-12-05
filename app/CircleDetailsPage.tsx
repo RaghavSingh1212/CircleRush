@@ -7,19 +7,14 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import {
-  doc,
-  collection,
-  getDoc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
+import { PieChart } from "react-native-svg-charts"; // Import PieChart
+import { doc, collection, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { db, auth, functions } from "@/firebase";
 import { useFocusEffect } from "@react-navigation/native";
 import { httpsCallable } from "firebase/functions";
 
 export default function CircleDetailsPage({ route, navigation }) {
-  console.log("route", route)
+  console.log("route", route);
   const { circleId } = route.params;
   const [circleData, setCircleData] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -113,6 +108,23 @@ export default function CircleDetailsPage({ route, navigation }) {
     (a, b) => (b.score || 0) - (a.score || 0)
   );
 
+  // Prepare data for PieChart
+  const pieData = sortedUsers.map((user, index) => ({
+    key: user.userName,
+    value: user.score || 0,
+    svg: {
+      fill:
+        index === 0
+          ? "#FFA6A6" // Light Red for 1st
+          : index === 1
+          ? "#FFD9B3" // Light Orange for 2nd
+          : index === 2
+          ? "#FFF5B3" // Light Yellow for 3rd
+          : "#E4F2F8", // Light Blue for others
+    },
+    arc: { outerRadius: "100%", innerRadius: "0%" },
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{circleData.circleName}</Text>
@@ -128,22 +140,29 @@ export default function CircleDetailsPage({ route, navigation }) {
         </Text>
       </View>
 
+      {/* Add Pie Chart Section */}
+      <Text style={styles.subHeader}>Score Distribution</Text>
+      <View style={styles.chartContainer}>
+        <PieChart style={styles.pieChart} data={pieData} />
+        <Text style={styles.pieCenterText}>Total</Text>
+      </View>
+
+      {/* Users List */}
       <Text style={styles.subHeader}>Users</Text>
       <FlatList
         data={sortedUsers}
-        contentContainerStyle={styles.userListContainer} // Adjust container style for the list
+        contentContainerStyle={styles.userListContainer}
         renderItem={({ item, index }) => {
           let backgroundColor;
 
-          // Set background color based on rank
           if (index === 0) {
-            backgroundColor = "#FFA6A6"; // Light Red for 1st
+            backgroundColor = "#FFA6A6";
           } else if (index === 1) {
-            backgroundColor = "#FFD9B3"; // Light Orange for 2nd
+            backgroundColor = "#FFD9B3";
           } else if (index === 2) {
-            backgroundColor = "#FFF5B3"; // Light Yellow for 3rd
+            backgroundColor = "#FFF5B3";
           } else {
-            backgroundColor = "#E4F2F8"; // Light Blue for others
+            backgroundColor = "#E4F2F8";
           }
 
           return (
@@ -154,11 +173,8 @@ export default function CircleDetailsPage({ route, navigation }) {
           );
         }}
         keyExtractor={(item) => item.userName}
-        // numColumns={2} // Ensures one user per row
         style={styles.userList}
       />
-
-
 
       <Text style={styles.taskHeader}>Tasks</Text>
       <FlatList
@@ -211,12 +227,12 @@ export default function CircleDetailsPage({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: 'white'},
+  container: { flex: 1, padding: 20, backgroundColor: "white" },
   header: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 5,
+    marginBottom: 10,
     textAlign: "center",
   },
   infoBox: {
@@ -224,13 +240,12 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
-    
   },
   infoText: {
     fontSize: 16,
     color: "#555",
     marginBottom: 5,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subHeader: {
     fontSize: 22,
@@ -239,22 +254,31 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  taskHeader: {
-    fontSize: 22,
+  chartContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  pieChart: {
+    height: 200,
+    width: 200,
+  },
+  pieCenterText: {
+    position: "absolute",
+    fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
     color: "#333",
-    marginTop: 10,
-    marginBottom: 10,
   },
   userList: {
-    height: 350, // Adjust the height to fit exactly 4 rows
+    height: 350,
     marginBottom: 10,
     width: "100%",
   },
   userListContainer: {
-    flexGrow: 1, // Ensures the list container expands properly
-    paddingHorizontal: 15, // Add padding for better alignment
-    width: "100%", // Makes the list container take the full screen width
+    flexGrow: 1,
+    paddingHorizontal: 15,
+    width: "100%",
   },
   userContainer: {
     flexDirection: "row",
