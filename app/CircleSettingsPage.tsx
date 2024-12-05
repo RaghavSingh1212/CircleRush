@@ -55,7 +55,10 @@ export default function CircleSettingsPage({ route, navigation }) {
             navigation.goBack();
           }
         } else {
-          Alert.alert("Circle not found", "The circle data could not be retrieved.");
+          Alert.alert(
+            "Circle not found",
+            "The circle data could not be retrieved."
+          );
           navigation.goBack();
         }
       } catch (error) {
@@ -65,6 +68,47 @@ export default function CircleSettingsPage({ route, navigation }) {
 
     fetchCircleData();
   }, [circleId, user, navigation]);
+
+  const handleAssignAdmin = async (userName) => {
+    if (!isAdmin) {
+      Alert.alert("Unauthorized", "Only admins can assign other admins.");
+      return;
+    }
+
+    Alert.alert(
+      "Assign Admin",
+      `Are you sure you want to assign ${userName} as an admin?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Assign",
+          style: "default",
+          onPress: async () => {
+            try {
+              const updatedUsers = circleData.users.map((u) => {
+                if (u.userName === userName) {
+                  return { ...u, adminStatus: true };
+                }
+                return u;
+              });
+
+              const circleRef = doc(db, "Circles", circleId);
+              await updateDoc(circleRef, { users: updatedUsers });
+
+              setCircleData((prevData) => ({
+                ...prevData,
+                users: updatedUsers,
+              }));
+
+              Alert.alert("Success", `${userName} is now an admin.`);
+            } catch (error) {
+              Alert.alert("Error", "Failed to assign admin. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   // Update Notification Setting
   const handleToggleNotification = async (type) => {
@@ -92,9 +136,9 @@ export default function CircleSettingsPage({ route, navigation }) {
 
       Alert.alert(
         "Success",
-        `${type === "taskDeadline" ? "Task deadline" : "Circle"} notifications ${
-          updatedNotifications[type] ? "enabled" : "disabled"
-        }`
+        `${
+          type === "taskDeadline" ? "Task deadline" : "Circle"
+        } notifications ${updatedNotifications[type] ? "enabled" : "disabled"}`
       );
     } catch (error) {
       Alert.alert("Error updating notification settings", error.message);
@@ -165,6 +209,45 @@ export default function CircleSettingsPage({ route, navigation }) {
     }
   };
 
+  const handleLeaveCircle = async () => {
+    Alert.alert("Leave Circle", "Are you sure you want to leave this circle?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Leave",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const updatedUsers = circleData.users.filter(
+              (u) => u.userName !== (user?.displayName || user?.email)
+            );
+
+            if (
+              isAdmin &&
+              updatedUsers.some((u) => u.adminStatus === true) === false
+            ) {
+              Alert.alert(
+                "Error",
+                "You are the only admin. Assign another admin before leaving."
+              );
+              return;
+            }
+
+            const circleRef = doc(db, "Circles", circleId);
+            await updateDoc(circleRef, { users: updatedUsers });
+
+            Alert.alert("Success", "You have left the circle.");
+            navigation.navigate("ViewCirclesPage");
+          } catch (error) {
+            Alert.alert(
+              "Error",
+              "Failed to leave the circle. Please try again."
+            );
+          }
+        },
+      },
+    ]);
+  };
+
   // Delete Circle
   const handleDeleteCircle = async () => {
     if (!isAdmin) {
@@ -196,7 +279,10 @@ export default function CircleSettingsPage({ route, navigation }) {
               const circleRef = doc(db, "Circles", circleId);
               await deleteDoc(circleRef);
 
-              Alert.alert("Success", "Circle and all tasks deleted successfully.");
+              Alert.alert(
+                "Success",
+                "Circle and all tasks deleted successfully."
+              );
               navigation.navigate("ViewCirclesPage");
             } catch (error) {
               Alert.alert("Error deleting circle", error.message);
@@ -249,8 +335,18 @@ export default function CircleSettingsPage({ route, navigation }) {
           renderItem={({ item }) => (
             <View style={styles.userContainer}>
               <Text style={styles.userName}>{item.userName}</Text>
+              {isAdmin && !item.adminStatus && (
+                <TouchableOpacity
+                  onPress={() => handleAssignAdmin(item.userName)}
+                >
+                  <Text style={styles.assignAdminText}>Assign Admin</Text>
+                </TouchableOpacity>
+              )}
+
               {isAdmin && (
-                <TouchableOpacity onPress={() => handleDeleteUser(item.userName)}>
+                <TouchableOpacity
+                  onPress={() => handleDeleteUser(item.userName)}
+                >
                   <Text style={styles.removeText}>Remove</Text>
                 </TouchableOpacity>
               )}
@@ -258,8 +354,6 @@ export default function CircleSettingsPage({ route, navigation }) {
           )}
           style={styles.userList}
         />
-
-
       </View>
 
       {isAdmin && (
@@ -282,6 +376,11 @@ export default function CircleSettingsPage({ route, navigation }) {
           <Text style={styles.resetButtonText}>Reset Circle</Text>
         </TouchableOpacity>
       )}
+
+      <TouchableOpacity style={styles.leaveButton} onPress={handleLeaveCircle}>
+        <Text style={styles.leaveButtonText}>Leave Circle</Text>
+      </TouchableOpacity>
+
       {isAdmin && (
         <TouchableOpacity
           style={styles.deleteButton}
@@ -398,4 +497,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  assignAdminText: {
+    fontSize: 16,
+    color: "#4A90E2", // Blue color for "Assign Admin" text
+    fontWeight: "bold",
+  },
+  leaveButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    backgroundColor: "#FF6B6B",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  leaveButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  
 });

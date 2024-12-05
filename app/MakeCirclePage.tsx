@@ -11,6 +11,9 @@ const MakeCirclePage = () => {
   const [duration, setDuration] = useState('');
   const navigation = useNavigation();
 
+
+  
+
   const handleCreateCircle = async () => {
     if (!circleName || !winnerPrize || !loserChallenge || !duration) {
       Alert.alert('All fields are required!');
