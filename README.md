@@ -78,7 +78,11 @@ Check out these resources to learn more about Expo development:
 
 Here are some screenshots of the app:
 
-![Expo Logo]([https://expo.dev/assets/images/thumb1.png](https://drive.google.com/file/d/1DEqkEAXwQXJp1O0ndUh-uq6jg7QR38mm/view?usp=sharing))
+![Local Image](./assets/image/thumb1.png)
+
+<video width="600" controls>
+  <source src="./assets/video.mp4" type="video/mp4">
+</video>
 
 ## 🎬 Demo Video
 
