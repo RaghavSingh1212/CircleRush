@@ -80,7 +80,7 @@ Here are some screenshots of the app:
 
 ![Local Image](./assets/images/thumb1.png)
 
-<video width="600" controls>
+<video width="300" controls>
   <source src="./assets/video.mp4" type="video/mp4">
 </video>
 
