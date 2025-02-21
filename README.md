@@ -69,11 +69,6 @@ Check out these resources to learn more about Expo development:
 - [Expo Documentation](https://docs.expo.dev/): Learn fundamentals and advanced topics.
 - [Learn Expo Tutorial](https://docs.expo.dev/tutorial/introduction/): Step-by-step guide to build an app for Android, iOS, and web.
 
-## 💬 Join the Community
-
-- [Expo on GitHub](https://github.com/expo/expo): Contribute to the open-source project.
-- [Discord Community](https://chat.expo.dev): Chat with developers and ask questions.
-
 ## 🎨 Screenshots
 
 Here are some screenshots of the app:
