@@ -88,8 +88,7 @@ Here are some screenshots of the app:
 
 Watch this demo to see the app in action:
 
-<video width="600" controls>
-  <source src="./assets/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+## YouTube Video
+<iframe width="560" height="315" src="https://youtu.be/MYVzb0aCLOU?si=LYQLjgv8PF3VtoKT" frameborder="0" allowfullscreen></iframe>
+
 
