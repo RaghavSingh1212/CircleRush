@@ -86,9 +86,7 @@ Here are some screenshots of the app:
 
 ## 🎬 Demo Video
 
-Watch this demo to see the app in action:
+[![Watch the video](https://img.youtube.com/vi/MYVzb0aCLOU/0.jpg)](https://www.youtube.com/watch?v=MYVzb0aCLOU)
 
-## YouTube Video
-<iframe width="560" height="315" src="https://youtu.be/MYVzb0aCLOU?si=LYQLjgv8PF3VtoKT" frameborder="0" allowfullscreen></iframe>
 
 
