@@ -78,7 +78,7 @@ Check out these resources to learn more about Expo development:
 
 Here are some screenshots of the app:
 
-![Local Image](./assets/image/thumb1.png)
+![Local Image](./assets/images/thumb1.png)
 
 <video width="600" controls>
   <source src="./assets/video.mp4" type="video/mp4">
