@@ -1,67 +1,91 @@
-# Welcome to your Expo app 👋
+# Welcome to Your Expo App 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+## 🚀 Get Started
 
-1. Install dependencies
+### 1. Install Dependencies
 
-   ```bash
-   npm install
-   npm fund
-   npm audit fix --force
-   sudo npm install -g firebase-tools
-   sudo npm i --save firebase-functions
-   npm install dotenv --save
-   ```
+Run the following commands to install dependencies:
 
-2. Add the .env file with the SENDGRID_API_KEY in the functions folder
+```bash
+npm install
+npm fund
+npm audit fix --force
+sudo npm install -g firebase-tools
+sudo npm i --save firebase-functions
+npm install dotenv --save
+```
 
-2. Start the app
+### 2. Add Environment Variables
 
-   ```bash
-    npx expo start
-   ```
+Create a `.env` file inside the `functions` folder and add your `SENDGRID_API_KEY`.
 
-2. Start two new terminals
+### 3. Start the App
 
-   ```bash
-    firebase emulators:start --only functions
-   ```
+```bash
+npx expo start
+```
 
-   ```bash
-    firebase functions:shell
-   ```
+### 4. Start Firebase Emulators
 
-In the output, you'll find options to open the app in a
+Open two new terminal windows and run the following:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```bash
+firebase emulators:start --only functions
+```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+```bash
+firebase functions:shell
+```
 
-## Get a fresh project
+## 📱 Run on Different Devices
 
-When you're ready, run:
+You can open the app in:
+
+- [Development Build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS Simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go)
+
+## 🌀 Project Structure
+
+The project follows a **file-based routing** approach, and you can start developing inside the `app` directory.
+
+## 🔄 Reset the Project
+
+If you need a fresh project, run:
 
 ```bash
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This will move the starter code to the `app-example` directory and create a new `app` directory.
 
-## Learn more
+## 📚 Learn More
 
-To learn more about developing your project with Expo, look at the following resources:
+Check out these resources to learn more about Expo development:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- [Expo Documentation](https://docs.expo.dev/): Learn fundamentals and advanced topics.
+- [Learn Expo Tutorial](https://docs.expo.dev/tutorial/introduction/): Step-by-step guide to build an app for Android, iOS, and web.
 
-## Join the community
+## 💬 Join the Community
 
-Join our community of developers creating universal apps.
+- [Expo on GitHub](https://github.com/expo/expo): Contribute to the open-source project.
+- [Discord Community](https://chat.expo.dev): Chat with developers and ask questions.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🎨 Screenshots
+
+Here are some screenshots of the app:
+
+![Expo Logo](https://expo.dev/static/images/brand/logo.png)
+
+## 🎬 Demo Video
+
+Watch this demo to see the app in action:
+
+<video width="600" controls>
+  <source src="./assets/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
